@@ -5,6 +5,7 @@
  */
 package org.bitbucket.ucchy.stinger;
 
+import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 
 /**
@@ -43,6 +44,9 @@ public class StingerMissileConfig {
     /** 着弾時の爆発威力 */
     private int explosionPower;
     
+    /** ミサイルランチャーとして使用するアイテムの素材 */
+    private Material launcherMaterial;
+    
     /** 無限ミサイルモード */
     private boolean infiniteMissileMode;
 
@@ -62,6 +66,8 @@ public class StingerMissileConfig {
         hormingNum = config.getInt("hormingNum", 45);
         explosionPower = config.getInt("explosionPower", 5);
         infiniteMissileMode = config.getBoolean("infiniteMissileMode", true);
+        
+        launcherMaterial = Material.getMaterial(config.getString("launcherMaterial", "GOLD_HOE"));
     }
 
     /**
@@ -132,6 +138,13 @@ public class StingerMissileConfig {
      */
     public int getExplosionPower() {
         return explosionPower;
+    }
+    
+    /**
+     * @return launcherMaterial ミサイルランチャーとして使用するアイテムの素材
+     */
+    public Material getLauncherMaterial() {
+        return launcherMaterial;
     }
     
     /**

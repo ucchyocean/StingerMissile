@@ -123,7 +123,7 @@ public class StingerMissile extends JavaPlugin implements Listener {
      */
     private ItemStack makeLauncher() {
         
-        item = new ItemStack(Material.GOLD_HOE, 1);
+        item = new ItemStack(config.getLauncherMaterial(), 1);
         ItemMeta wirerodMeta = item.getItemMeta();
         wirerodMeta.setDisplayName(DISPLAY_NAME);
         item.setItemMeta(wirerodMeta);

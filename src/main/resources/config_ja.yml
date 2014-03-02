@@ -14,11 +14,14 @@ targetingWidth: 2.5
 # 同時にターゲット可能な対象数
 maxTargetNum: 5
 
-# 弾の初速
+# ミサイルのスピード
 missileSpeed: 0.8
 
 # 弾がヒットしたときに発生する爆風の強さ。爆発の強さがそのまま威力になる。
 explosionPower: 3
+
+# ミサイルランチャーとして使用するアイテムの素材
+launcherMaterial: 'GOLD_HOE'
 
 # 無限ミサイルモード
 # true :  ミサイルが手持ちに無くても、ランチャーのみでミサイルを無限に発射できます。
