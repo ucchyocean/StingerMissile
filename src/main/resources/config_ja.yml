@@ -1,0 +1,28 @@
+# ${project.name} v${project.version}
+# @author     ucchy
+# @license    LGPLv3
+# @copyright  Copyright ucchy 2014
+
+# 右クリックでターゲッティングしているときの、ターゲット取得最大距離
+# 大きくすると、遠いプレイヤーも取得される。最大でも100以下にすること。
+targetingRange: 40
+
+# 右クリックでターゲッティングしているときの、ターゲット取得範囲(横方向)
+# 大きくすると、ターゲットから離れたプレイヤーもターゲッティングされる。
+targetingWidth: 2.5
+
+# 同時にターゲット可能な対象数
+maxTargetNum: 5
+
+# 弾の初速
+missileSpeed: 0.8
+
+# 弾がヒットしたときに発生する爆風の強さ。爆発の強さがそのまま威力になる。
+explosionPower: 3
+
+# 無限ミサイルモード
+# true :  ミサイルが手持ちに無くても、ランチャーのみでミサイルを無限に発射できます。
+#         PVPサーバー向け。
+# false : 手持ちにミサイル（普通のエンダーパール）が必要です。
+#         1発打つごとにエンダーパールを1個消費します。サバイバルサーバー向け。
+infiniteMissileMode: true
