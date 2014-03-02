@@ -136,8 +136,8 @@ public class StingerMissile extends JavaPlugin implements Listener {
     private Recipe makeLauncherRecipe(ItemStack launcher) {
         
         ShapelessRecipe recipe = new ShapelessRecipe(launcher);
-        recipe.addIngredient(Material.GOLD_HOE);
-        recipe.addIngredient(Material.ENDER_PEARL);
+        recipe.addIngredient(config.getLauncherMaterial());
+        recipe.addIngredient(MISSILE_MATERIAL);
         return recipe;
     }
     
