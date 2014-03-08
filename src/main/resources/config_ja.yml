@@ -29,3 +29,9 @@ launcherMaterial: 'GOLD_HOE'
 # false : 手持ちにミサイル（普通のエンダーパール）が必要です。
 #         1発打つごとにエンダーパールを1個消費します。サバイバルサーバー向け。
 infiniteMissileMode: true
+
+# MOBへのターゲッティング有効無効を切り替えする
+targetingToMob: true
+
+# プレイヤーへのターゲッティング有効無効を切り替えする
+targetingToPlayer: true

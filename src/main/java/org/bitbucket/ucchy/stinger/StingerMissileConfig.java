@@ -49,6 +49,12 @@ public class StingerMissileConfig {
     
     /** 無限ミサイルモード */
     private boolean infiniteMissileMode;
+    
+    /** MOBにターゲッティングするかどうか */
+    private boolean targetingToMob;
+    
+    /** プレイヤーにターゲッティングするかどうか */
+    private boolean targetingToPlayer;
 
     /**
      * コンストラクタ
@@ -66,8 +72,16 @@ public class StingerMissileConfig {
         hormingNum = config.getInt("hormingNum", 45);
         explosionPower = config.getInt("explosionPower", 5);
         infiniteMissileMode = config.getBoolean("infiniteMissileMode", true);
+        targetingToMob = config.getBoolean("targetingToMob", true);
+        targetingToPlayer = config.getBoolean("targetingToPlayer", true);
         
         launcherMaterial = Material.getMaterial(config.getString("launcherMaterial", "GOLD_HOE"));
+        if ( launcherMaterial == null ) {
+            StingerMissile.instance.getLogger().warning(
+                    "launcherMaterial の設定が正しくないので、金のクワに変更します。");
+            launcherMaterial = Material.GOLD_HOE;
+        }
+        
     }
 
     /**
@@ -152,5 +166,19 @@ public class StingerMissileConfig {
      */
     public boolean isInfiniteMissileMode() {
         return infiniteMissileMode;
+    }
+
+    /**
+     * @return targetingToMob MOBにターゲッティングするかどうか
+     */
+    public boolean isTargetingToMob() {
+        return targetingToMob;
+    }
+
+    /**
+     * @return targetingToPlayer プレイヤーにターゲッティングするかどうか
+     */
+    public boolean isTargetingToPlayer() {
+        return targetingToPlayer;
     }
 }

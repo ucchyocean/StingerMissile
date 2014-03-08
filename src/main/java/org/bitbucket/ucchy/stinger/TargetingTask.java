@@ -114,7 +114,7 @@ public class TargetingTask extends BukkitRunnable {
                             name, targeted.size() + 1, max);
                     player.sendMessage(message);
                     targeted.add(target);
-                    player.getWorld().playSound(
+                    player.playSound(
                             player.getLocation(), Sound.ORB_PICKUP, 1, 1);
                 }
             }
@@ -241,20 +241,32 @@ public class TargetingTask extends BukkitRunnable {
         
         // プレイヤーと、レンジのちょうど中間にダミーEntityを生成し、
         // 立方体範囲のエンティティをまとめて取得する。
+        StingerMissileConfig config = StingerMissile.config;
         Location center = player.getLocation().clone();
         double halfrange = (double)range / 2.0;
         center.add(center.getDirection().normalize().multiply(halfrange));
         Entity orb = center.getWorld().spawnEntity(center, EntityType.EXPERIENCE_ORB);
-        ArrayList<LivingEntity> les = new ArrayList<LivingEntity>();
+        ArrayList<LivingEntity> livings = new ArrayList<LivingEntity>();
         for ( Entity e : orb.getNearbyEntities(halfrange, halfrange, halfrange) ) {
+
             if ( e instanceof LivingEntity && !player.equals(e) ) {
-                les.add((LivingEntity)e);
+                
+                if ( e instanceof Player && config.isTargetingToPlayer() && !player.equals(e) ) {
+                    // 対象がプレイヤーで、プレイヤーへのターゲッティングが有効なら、
+                    // ターゲット対象に加える。
+                    livings.add((LivingEntity)e);
+                    
+                } else if ( !(e instanceof Player) && config.isTargetingToMob() ) {
+                    // 対象がMOBで、MOBへのターゲッティングが有効なら、
+                    // ターゲット対象に加える。
+                    livings.add((LivingEntity)e);
+                }
             }
         }
         orb.remove();
         
         // LivingEntity が1体も見つからないなら、そのまま終了する。
-        if ( les.isEmpty() ) {
+        if ( livings.isEmpty() ) {
             return null;
         }
         
@@ -273,7 +285,7 @@ public class TargetingTask extends BukkitRunnable {
                 
             } else {
                 
-                for ( LivingEntity le : les ) {
+                for ( LivingEntity le : livings ) {
                     if ( block.getLocation().distance(le.getLocation()) <= width ) {
                         // LivingEntityが見つかったので、LivingEntityを返して終了する
                         return le;
@@ -319,6 +331,7 @@ public class TargetingTask extends BukkitRunnable {
      * タスクをキャンセルして終了状態にする
      */
     private void cancelThisTask() {
+        
         Bukkit.getScheduler().cancelTask(id);
         isEnd = true; // set end flag.
     }

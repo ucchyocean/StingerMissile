@@ -52,7 +52,7 @@ public class StingerMissile extends JavaPlugin implements Listener {
     private static final String DISPLAY_NAME =
             ChatColor.BLUE.toString() + ChatColor.BOLD.toString() + NAME;
     
-    protected static final String MISSILE_META_NAME = "StingerMissileBullet";
+    protected static final String MISSILE_META_NAME = "StingerMissile";
     protected static final EntityType MISSILE_ENTITY = EntityType.ENDER_PEARL;
     protected static final Material MISSILE_MATERIAL = Material.ENDER_PEARL;
     
