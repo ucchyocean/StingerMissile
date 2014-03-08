@@ -3,6 +3,7 @@ main: ${project.groupId}.${plugin.command.name}.${project.name}
 version: ${project.version}
 author: ucchy
 description: ${project.description}
+softdepend: [ColorTeaming]
 commands:
   ${plugin.command.name}:
     description: The command for ${project.name}.
