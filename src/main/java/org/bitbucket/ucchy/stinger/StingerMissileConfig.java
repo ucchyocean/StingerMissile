@@ -78,7 +78,7 @@ public class StingerMissileConfig {
         launcherMaterial = Material.getMaterial(config.getString("launcherMaterial", "GOLD_HOE"));
         if ( launcherMaterial == null ) {
             StingerMissile.instance.getLogger().warning(
-                    "launcherMaterial の設定が正しくないので、金のクワに変更します。");
+                    "Not found material in \"launcherMaterial\" config. The launcher will be GOLD_HOE.");
             launcherMaterial = Material.GOLD_HOE;
         }
         

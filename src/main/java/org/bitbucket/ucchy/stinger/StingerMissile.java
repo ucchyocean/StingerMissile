@@ -305,7 +305,7 @@ public class StingerMissile extends JavaPlugin implements Listener {
             }
             
             if ( !(sender instanceof Player) ) {
-                sender.sendMessage(ChatColor.RED + "このコマンドはゲーム内から実行してください。");
+                sender.sendMessage(ChatColor.RED + "This command cannot be run from console.");
                 return true;
             }
             
@@ -326,13 +326,13 @@ public class StingerMissile extends JavaPlugin implements Listener {
             }
             
             if ( args.length <= 1 ) {
-                sender.sendMessage(ChatColor.RED + "引数が足らないです。渡す相手を指定してください。");
+                sender.sendMessage(ChatColor.RED + "Please add player name. ex) /" + label + " give (player)");
                 return true;
             }
             
             Player player = Bukkit.getPlayerExact(args[1]);
             if ( player == null ) {
-                sender.sendMessage(ChatColor.RED + "指定されたプレイヤーが見つかりません。");
+                sender.sendMessage(ChatColor.RED + "Not found the specified player.");
                 return true;
             }
             
