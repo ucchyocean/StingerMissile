@@ -43,10 +43,10 @@ public class TargetingTask extends BukkitRunnable {
     private int range;
     private double width;
     private int max;
-    
+
     /**
      * コンストラクタ
-     * @param player 
+     * @param player
      */
     public TargetingTask(Player player) {
         this.player = player;
@@ -54,20 +54,20 @@ public class TargetingTask extends BukkitRunnable {
         this.id = -1;
         this.targeted = new ArrayList<LivingEntity>();
         this.isEnd = false;
-        
+
         range = StingerMissile.config.getTargetingRange();
         width = StingerMissile.config.getTargetingWidth();
         max = StingerMissile.config.getMaxTargetNum();
     }
-    
+
     /**
      * タスクIDを設定する
-     * @param id 
+     * @param id
      */
     protected void setId(int id) {
         this.id = id;
     }
-    
+
     /**
      * タスクが終了状態かどうか確認する
      * @return
@@ -75,31 +75,31 @@ public class TargetingTask extends BukkitRunnable {
     protected boolean isEnded() {
         return isEnd;
     }
-    
+
     /**
      * 次のタイマー処理でも、ターゲッティング処理を続行するように設定する。
      */
     protected void setTargeting() {
         this.isTargeting = true;
     }
-    
+
     /**
      * タイマーで呼び出されるメソッド
      * @see java.lang.Runnable#run()
      */
     @Override
     public void run() {
-        
+
         if ( isEnd ) {
             cancelThisTask();
         }
-        
+
         if ( isTargeting ) {
-            
+
             if ( targeted.size() < max ) {
                 LivingEntity target = getTargetedEntity(player, range, width);
                 if ( target != null && !targeted.contains(target) ) {
-                    
+
                     // ターゲット対象の名前を取得する
                     String name;
                     if ( target instanceof Player ) {
@@ -107,10 +107,10 @@ public class TargetingTask extends BukkitRunnable {
                     } else {
                         name = target.getType().toString().toLowerCase();
                     }
-                    
+
                     // ターゲットしたことを通知して、音を鳴らす
                     String message = String.format(
-                            ChatColor.GOLD + "targeted %s. (%d/%d)", 
+                            ChatColor.GOLD + "targeted %s. (%d/%d)",
                             name, targeted.size() + 1, max);
                     player.sendMessage(message);
                     targeted.add(target);
@@ -118,23 +118,23 @@ public class TargetingTask extends BukkitRunnable {
                             player.getLocation(), Sound.ORB_PICKUP, 1, 1);
                 }
             }
-            
+
             isTargeting = false;
-            
+
         } else {
-            
+
             // ミサイルと、ホーミング処理タスクを作成する
             ArrayList<Projectile> missiles = new ArrayList<Projectile>();
             ArrayList<HormingTask> tasks = new ArrayList<HormingTask>();
-            
+
             // ターゲット対象ごとに、ミサイルと、ホーミング処理タスクを生成する
             for ( LivingEntity target : targeted ) {
-                
+
                 // ターゲットした対象が既にいない場合は、ミサイルを発射しない
                 if ( target == null || target.isDead() ) {
                     continue;
                 }
-                
+
                 // 有限ミサイルモードで、
                 // 手持ちにミサイルが無いなら発射しない、持っているなら1つ消費する
                 boolean infiniteMissileMode = StingerMissile.config.isInfiniteMissileMode();
@@ -148,7 +148,7 @@ public class TargetingTask extends BukkitRunnable {
                         consumeMissile(player);
                     }
                 }
-                
+
                 // ミサイルエンティティ生成
                 double offset = player.getVelocity().length() * 2.0 + 1.0;
                 Location location = player.getEyeLocation().add(
@@ -158,10 +158,10 @@ public class TargetingTask extends BukkitRunnable {
                 Vector vector = location.getDirection();
                 vector.normalize().multiply(StingerMissile.config.getMissileSpeed());
                 missile.setVelocity(vector);
-                missile.setMetadata(StingerMissile.MISSILE_META_NAME, 
+                missile.setMetadata(StingerMissile.MISSILE_META_NAME,
                       new FixedMetadataValue(StingerMissile.instance, true));
                 missile.setShooter(player);
-                
+
                 // ミサイルのエフェクト生成
                 Firework fw = (Firework)target.getWorld().spawnEntity(
                         target.getLocation(), EntityType.FIREWORK);
@@ -169,7 +169,7 @@ public class TargetingTask extends BukkitRunnable {
                 fwm.setPower(10);
                 fw.setFireworkMeta(fwm);
                 missile.setPassenger(fw);
-                
+
                 // ホーミング処理タスク生成
                 int hormingRange = StingerMissile.config.getHormingRange();
                 int hormingStart = StingerMissile.config.getHormingStartTicks();
@@ -180,19 +180,19 @@ public class TargetingTask extends BukkitRunnable {
                 BukkitTask t = Bukkit.getScheduler().runTaskTimer(
                         StingerMissile.instance, task, hormingStart, hormingTicks);
                 task.setId(t.getTaskId());
-                
+
                 missiles.add(missile);
                 tasks.add(task);
-                
+
                 // テレポートを1回分無効にする。
                 // （ミサイルにエンダーパールを使用するための回避策）
                 StingerMissile.instance.increasePlayerIgnoreTeleportCount(player);
             }
-            
+
             if ( missiles.size() == 0 ) {
                 // 発射したミサイルが無い場合
                 // プシュっという音と、煙を出す。
-                
+
                 player.playSound(player.getLocation(), Sound.IRONGOLEM_THROW, 1.0F, 1.5F);
                 player.getWorld().playEffect(player.getLocation(), Effect.SMOKE, 1);
                 player.getWorld().playEffect(player.getLocation(), Effect.SMOKE, 3);
@@ -202,15 +202,15 @@ public class TargetingTask extends BukkitRunnable {
 
             } else {
                 // 発射したミサイルがある場合
-                
+
                 // 発射音を鳴らす
                 player.getWorld().playSound(player.getLocation(), Sound.NOTE_BASS_DRUM, 1.0F, 1.0F);
                 player.getWorld().playSound(player.getLocation(), Sound.SILVERFISH_HIT, 0.5F, 0.0F);
                 player.getWorld().playSound(player.getLocation(), Sound.CHEST_CLOSE, 1.0F, 1.8F);
-                
+
                 // 発射タスクを記録する
                 StingerMissile.instance.putHormingTask(player, tasks);
-                
+
                 // 発射したミサイルの数だけ、ランチャーの消耗度を追加する
                 short durability = player.getItemInHand().getDurability();
                 durability += (short)missiles.size();
@@ -222,7 +222,7 @@ public class TargetingTask extends BukkitRunnable {
                     player.getItemInHand().setDurability(durability);
                 }
             }
-            
+
             // このタスクを終了する
             cancelThisTask();
         }
@@ -238,7 +238,7 @@ public class TargetingTask extends BukkitRunnable {
      * @param width 取得範囲
      */
     protected LivingEntity getTargetedEntity(Player player, int range, double width) {
-        
+
         // プレイヤーと、レンジのちょうど中間にダミーEntityを生成し、
         // 立方体範囲のエンティティをまとめて取得する。
         StingerMissileConfig config = StingerMissile.config;
@@ -250,12 +250,12 @@ public class TargetingTask extends BukkitRunnable {
         for ( Entity e : orb.getNearbyEntities(halfrange, halfrange, halfrange) ) {
 
             if ( e instanceof LivingEntity && !player.equals(e) ) {
-                
+
                 if ( e instanceof Player && config.isTargetingToPlayer() && !player.equals(e) ) {
                     // 対象がプレイヤーで、プレイヤーへのターゲッティングが有効なら、
                     // ターゲット対象に加える。
                     livings.add((LivingEntity)e);
-                    
+
                 } else if ( !(e instanceof Player) && config.isTargetingToMob() ) {
                     // 対象がMOBで、MOBへのターゲッティングが有効なら、
                     // ターゲット対象に加える。
@@ -264,27 +264,27 @@ public class TargetingTask extends BukkitRunnable {
             }
         }
         orb.remove();
-        
+
         // LivingEntity が1体も見つからないなら、そのまま終了する。
         if ( livings.isEmpty() ) {
             return null;
         }
-        
+
         // 視線上のブロックを取得
         BlockIterator it = new BlockIterator(player, range);
-        
+
         // 手前側から検証を行う。
         // Blockか、LivingEntity が取得できた時点でreturnして終了する。
         while ( it.hasNext() ) {
-            
+
             Block block = it.next();
-            
+
             if ( block.getType() != Material.AIR ) {
                 // ブロックが見つかったので終了する
                 return null;
-                
+
             } else {
-                
+
                 for ( LivingEntity le : livings ) {
                     if ( block.getLocation().distance(le.getLocation()) <= width ) {
                         // LivingEntityが見つかったので、LivingEntityを返して終了する
@@ -293,29 +293,29 @@ public class TargetingTask extends BukkitRunnable {
                 }
             }
         }
-        
+
         // 何も見つからなかった
         return null;
     }
-    
+
     /**
      * 指定されたプレイヤーがミサイルを持っているかどうかを確認する
-     * @param player 
+     * @param player
      * @return
      */
     private boolean hasMissile(Player player) {
-        
+
         PlayerInventory inv = player.getInventory();
         int index = inv.first(StingerMissile.MISSILE_MATERIAL);
         return (index != -1);
     }
-    
+
     /**
      * 指定されたプレイヤーが持つミサイルを1つ消費する
-     * @param player 
+     * @param player
      */
     private void consumeMissile(Player player) {
-        
+
         PlayerInventory inv = player.getInventory();
         int index = inv.first(StingerMissile.MISSILE_MATERIAL);
         ItemStack item = inv.getItem(index);
@@ -331,7 +331,7 @@ public class TargetingTask extends BukkitRunnable {
      * タスクをキャンセルして終了状態にする
      */
     private void cancelThisTask() {
-        
+
         Bukkit.getScheduler().cancelTask(id);
         isEnd = true; // set end flag.
     }

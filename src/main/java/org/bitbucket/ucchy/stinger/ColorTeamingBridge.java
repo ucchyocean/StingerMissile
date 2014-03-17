@@ -17,11 +17,11 @@ import com.github.ucchyocean.ct.ColorTeaming;
 public class ColorTeamingBridge {
 
     private ColorTeaming colorteaming;
-    
+
     public ColorTeamingBridge(Plugin colorteaming) {
         this.colorteaming = (ColorTeaming)colorteaming;
     }
-    
+
     public void registerItem(ItemStack item, String name, String displayName) {
         colorteaming.getAPI().registerCustomItem(
                 item, name, displayName);

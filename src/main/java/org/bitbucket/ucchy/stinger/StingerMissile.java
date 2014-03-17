@@ -51,18 +51,21 @@ public class StingerMissile extends JavaPlugin implements Listener {
     private static final String NAME = "Stinger";
     private static final String DISPLAY_NAME =
             ChatColor.BLUE.toString() + ChatColor.BOLD.toString() + NAME;
-    
+
     protected static final String MISSILE_META_NAME = "StingerMissile";
     protected static final EntityType MISSILE_ENTITY = EntityType.ENDER_PEARL;
     protected static final Material MISSILE_MATERIAL = Material.ENDER_PEARL;
-    
+
     private static final String EXPLOSION_SOURCE_META_NAME = "ExplosionSource";
-    
+
+    private static final String CONFIG_FILE_NAME_EN = "config_en.yml";
+    private static final String CONFIG_FILE_NAME_JA = "config_ja.yml";
+
     private ItemStack item;
-    
+
     protected static StingerMissile instance;
     protected static StingerMissileConfig config;
-    
+
     private HashMap<String, TargetingTask> targetingTasks;
     private HashMap<String, ArrayList<HormingTask>> hormingTasks;
 
@@ -73,7 +76,7 @@ public class StingerMissile extends JavaPlugin implements Listener {
     public void onEnable() {
 
         instance = this;
-        
+
         reloadLockonConfig();
         getServer().getPluginManager().registerEvents(this, this);
 
@@ -90,7 +93,7 @@ public class StingerMissile extends JavaPlugin implements Listener {
             Plugin colorteaming = getServer().getPluginManager().getPlugin("ColorTeaming");
             String ctversion = colorteaming.getDescription().getVersion();
             if ( Utility.isUpperVersion(ctversion, "2.2.5") ) {
-                getLogger().info("ColorTeaming was loaded. " 
+                getLogger().info("ColorTeaming was loaded. "
                         + getDescription().getName() + " is in cooperation with ColorTeaming.");
                 ColorTeamingBridge bridge = new ColorTeamingBridge(colorteaming);
                 bridge.registerItem(item, NAME, DISPLAY_NAME);
@@ -100,86 +103,90 @@ public class StingerMissile extends JavaPlugin implements Listener {
             }
         }
     }
-    
+
     /**
      * 設定を再読み込みする
      */
     private void reloadLockonConfig() {
-        
+
         // 必要に応じて、config.ymlを新規作成
         File configFile = new File(getDataFolder(), "config.yml");
         if ( !configFile.exists() ) {
-            Utility.copyFileFromJar(getFile(), configFile, "config_ja.yml", false);
+            String configFileOrg = CONFIG_FILE_NAME_EN;
+            if ( System.getProperty("user.language").equals("ja") ) {
+                configFileOrg = CONFIG_FILE_NAME_JA;
+            }
+            Utility.copyFileFromJar(getFile(), configFile, configFileOrg, false);
         }
-        
+
         // config.yml の再読み込み
         reloadConfig();
         config = new StingerMissileConfig(getConfig());
     }
-    
+
     /**
      * ランチャーを作成して返す
      * @return ランチャー
      */
     private ItemStack makeLauncher() {
-        
+
         item = new ItemStack(config.getLauncherMaterial(), 1);
         ItemMeta wirerodMeta = item.getItemMeta();
         wirerodMeta.setDisplayName(DISPLAY_NAME);
         item.setItemMeta(wirerodMeta);
         return item;
     }
-    
+
     /**
      * ランチャーのレシピを作成する
      */
     private Recipe makeLauncherRecipe(ItemStack launcher) {
-        
+
         ShapelessRecipe recipe = new ShapelessRecipe(launcher);
         recipe.addIngredient(config.getLauncherMaterial());
         recipe.addIngredient(MISSILE_MATERIAL);
         return recipe;
     }
-    
+
     /**
      * プレイヤーがクリックをしたときに呼び出されるメソッド
-     * @param event 
+     * @param event
      */
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
-        
+
         Player player = event.getPlayer();
         ItemStack item = event.getItem();
-        
+
         // ロックオン銃でなければ、無視する
         if ( !isLockonGun(item) ) {
             return;
         }
-        
+
         // 感圧板イベントなら無視する。
         if ( event.getAction() == Action.PHYSICAL ) {
             return;
         }
-        
+
         // 右クリックによるイベントでなければ無視する。
-        if ( event.getAction() == Action.LEFT_CLICK_AIR || 
+        if ( event.getAction() == Action.LEFT_CLICK_AIR ||
                 event.getAction() == Action.LEFT_CLICK_BLOCK ) {
             return;
         }
-        
+
         // イベントのバニラ動作をキャンセル設定。
         event.setCancelled(true);
-        
+
         // パーミッションを持っていないならメッセージを出して終了。
         if ( !checkPermission(player, "action") ) {
             return;
         }
-        
+
         // このプレイヤーの弾は発射中かどうかを確認する。
         if ( checkHormingTask(player) ) {
             return; // 発射中なので終了
         }
-        
+
         // ターゲッティング処理を行う
         TargetingTask task = null;
         if ( targetingTasks.containsKey(player.getName()) ) {
@@ -192,7 +199,7 @@ public class StingerMissile extends JavaPlugin implements Listener {
         if ( task == null ) {
             task = new TargetingTask(player);
             targetingTasks.put(player.getName(), task);
-            BukkitTask t = 
+            BukkitTask t =
                     Bukkit.getScheduler().runTaskTimer(
                             this, task, 0, config.getTargetingTicks());
             task.setId(t.getTaskId());
@@ -200,7 +207,7 @@ public class StingerMissile extends JavaPlugin implements Listener {
             task.setTargeting();
         }
     }
-    
+
     @EventHandler
     public void onDamageByEntity(EntityDamageByEntityEvent event) {
 
@@ -213,26 +220,26 @@ public class StingerMissile extends JavaPlugin implements Listener {
             return;
         }
     }
-    
+
     @EventHandler
     public void onDamage(EntityDamageEvent event) {
-        
+
         // EXPLOSION_SOURCE のメタデータを持っているなら、
         // 同じチームメンバーの攻撃かどうかを確認し、
         // 同じチームメンバーなら、ダメージをキャンセルする
         if ( event.getEntity() instanceof Player ) {
-            
+
             Player damagee = (Player)event.getEntity();
 
             if ( event.getCause() == DamageCause.BLOCK_EXPLOSION &&
                     damagee.hasMetadata(EXPLOSION_SOURCE_META_NAME) ) {
-                
+
                 Player attacker = Bukkit.getPlayerExact(
                         damagee.getMetadata(EXPLOSION_SOURCE_META_NAME).get(0).asString());
                 damagee.removeMetadata(EXPLOSION_SOURCE_META_NAME, this);
-                
+
                 if ( attacker != null ) {
-                    
+
                     if ( Utility.checkPlayersSameTeam(attacker, damagee) ) {
                         // 同じチームメンバーが起こした爆発なら、イベントをキャンセル
                         event.setCancelled(true);
@@ -241,15 +248,15 @@ public class StingerMissile extends JavaPlugin implements Listener {
             }
         }
     }
-    
+
     @EventHandler
     public void onHit(ProjectileHitEvent event) {
         // ミサイルがぶつかったときに、爆発を発生させる
-        
+
         Projectile proj = event.getEntity();
         if ( proj != null && proj.getType() == MISSILE_ENTITY &&
                 proj.hasMetadata(MISSILE_META_NAME) ) {
-            
+
             // まず、着弾地点の爆発範囲にいるエンティティに、
             // メタデータで攻撃者を記録し、ダメージ0を与えて攻撃者を記録する
             double power = config.getExplosionPower();
@@ -261,22 +268,22 @@ public class StingerMissile extends JavaPlugin implements Listener {
                 for ( Entity entity : proj.getNearbyEntities(power, power, power) ) {
                     if ( entity instanceof LivingEntity ) {
                         LivingEntity le = (LivingEntity)entity;
-                        le.setMetadata(EXPLOSION_SOURCE_META_NAME, 
+                        le.setMetadata(EXPLOSION_SOURCE_META_NAME,
                                 new FixedMetadataValue(this, shooter.getName()));
                         le.damage(0, shooter);
                         le.setNoDamageTicks(0);
                     }
                 }
             }
-            
+
             // 爆発を発生させてダメージを与える
             Location l = proj.getLocation();
             World w = proj.getWorld();
             w.createExplosion(
-                    l.getX(), l.getY(), l.getZ(), 
+                    l.getX(), l.getY(), l.getZ(),
                     (float)power, false, false);
             proj.removeMetadata(MISSILE_META_NAME, this);
-            
+
             // エフェクト用の花火を削除する、ミサイルを削除する
             Entity passenger = proj.getPassenger();
             if ( passenger != null ) {
@@ -285,7 +292,7 @@ public class StingerMissile extends JavaPlugin implements Listener {
             proj.remove();
         }
     }
-    
+
     /**
      * コマンドが実行されたときに呼び出されるメソッド
      * @see org.bukkit.plugin.java.JavaPlugin#onCommand(org.bukkit.command.CommandSender, org.bukkit.command.Command, java.lang.String, java.lang.String[])
@@ -293,68 +300,68 @@ public class StingerMissile extends JavaPlugin implements Listener {
     @Override
     public boolean onCommand(
             CommandSender sender, Command command, String label, String[] args) {
-        
+
         if ( args.length == 0 ) {
             return false;
         }
-        
+
         if ( args[0].equalsIgnoreCase("get") ) {
-            
+
             if ( !checkPermission(sender, "get") ) {
                 return true;
             }
-            
+
             if ( !(sender instanceof Player) ) {
                 sender.sendMessage(ChatColor.RED + "This command cannot be run from console.");
                 return true;
             }
-            
+
             Player player = (Player)sender;
-            
+
             ItemStack temp = player.getItemInHand();
             player.setItemInHand(item.clone());
             if ( temp != null ) {
                 player.getInventory().addItem(temp);
             }
-            
+
             return true;
-            
+
         } else if ( args[0].equalsIgnoreCase("give") ) {
-            
+
             if ( !checkPermission(sender, "give") ) {
                 return true;
             }
-            
+
             if ( args.length <= 1 ) {
                 sender.sendMessage(ChatColor.RED + "Please add player name. ex) /" + label + " give (player)");
                 return true;
             }
-            
+
             Player player = Bukkit.getPlayerExact(args[1]);
             if ( player == null ) {
                 sender.sendMessage(ChatColor.RED + "Not found the specified player.");
                 return true;
             }
-            
+
             ItemStack temp = player.getItemInHand();
             player.setItemInHand(item.clone());
             if ( temp != null ) {
                 player.getInventory().addItem(temp);
             }
-            
+
             return true;
-            
+
         } else if ( args[0].equalsIgnoreCase("reload") ) {
-            
+
             if ( !checkPermission(sender, "reload") ) {
                 return true;
             }
-            
+
             reloadLockonConfig();
             sender.sendMessage(ChatColor.GOLD + "reload completed.");
             return true;
         }
-        
+
         return false;
     }
 
@@ -376,25 +383,25 @@ public class StingerMissile extends JavaPlugin implements Listener {
             }
             return candidates;
         }
-        
+
         return null;
     }
 
     /**
      * プレイヤーがテレポートしたときに呼び出されるメソッド
-     * @param event 
+     * @param event
      */
     @EventHandler
     public void onTeleport(PlayerTeleportEvent event) {
-        
+
         if ( event.getCause() == TeleportCause.ENDER_PEARL ) {
-            
+
             // テレポート無効カウントを取得する
             Player player = event.getPlayer();
             if ( player.hasMetadata(MISSILE_META_NAME) ) {
                 MetadataValue mvalue = player.getMetadata(MISSILE_META_NAME).get(0);
                 int count = mvalue.asInt();
-                
+
                 if ( count > 0 ) {
                     // カウントを1減らして、テレポートを無効化する
                     count--;
@@ -404,13 +411,13 @@ public class StingerMissile extends JavaPlugin implements Listener {
             }
         }
     }
-    
+
     /**
      * 対象プレイヤーのテレポート無効カウントを1増やす
-     * @param player 
+     * @param player
      */
     protected void increasePlayerIgnoreTeleportCount(Player player) {
-        
+
         int count = 1;
         if ( player.hasMetadata(MISSILE_META_NAME) ) {
             MetadataValue mvalue = player.getMetadata(MISSILE_META_NAME).get(0);
@@ -418,67 +425,67 @@ public class StingerMissile extends JavaPlugin implements Listener {
         }
         player.setMetadata(MISSILE_META_NAME, new FixedMetadataValue(this, count));
     }
-    
+
     /**
      * アイテムが、ロックオン銃であるかどうかを確認する
-     * @param item 
+     * @param item
      * @return
      */
     private boolean isLockonGun(ItemStack item) {
-        
+
         if ( item == null ) {
             return false;
         }
-        
+
         if ( !item.hasItemMeta() ) {
             return false;
         }
-        
+
         if ( !item.getItemMeta().hasDisplayName() ) {
             return false;
         }
-        
+
         return DISPLAY_NAME.equals(item.getItemMeta().getDisplayName());
     }
-    
+
     /**
      * 指定したプレイヤーに関連する、ミサイル追跡タスクを設定する。
-     * @param player 
-     * @param tasks 
+     * @param player
+     * @param tasks
      */
     protected void putHormingTask(Player player, ArrayList<HormingTask> tasks) {
         hormingTasks.put(player.getName(), tasks);
     }
-    
+
     /**
      * 指定したプレイヤーに関連した、ミサイル追跡タスクがあるかどうかを確認する
-     * @param owner 
+     * @param owner
      * @return
      */
     private boolean checkHormingTask(Player owner) {
-        
+
         if ( !hormingTasks.containsKey(owner.getName()) ) {
             return false;
         }
-        
+
         ArrayList<HormingTask> tasks = hormingTasks.get(owner.getName());
         for ( HormingTask task : tasks ) {
             if ( !task.isEnded() ) {
                 return true;
             }
         }
-        
+
         // 全てのタスクは終了しているので、クリーンアップする
         tasks.clear();
         hormingTasks.remove(owner.getName());
-        
+
         return false;
     }
 
     /**
      * コマンドの実行権限を調べる
-     * @param sender 
-     * @param name 
+     * @param sender
+     * @param name
      * @return 実行権限を持っているかどうか
      */
     private boolean checkPermission(CommandSender sender, String name) {

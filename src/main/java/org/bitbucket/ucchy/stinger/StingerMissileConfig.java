@@ -16,43 +16,43 @@ public class StingerMissileConfig {
 
     /** ターゲット取得距離 */
     private int targetingRange;
-    
+
     /** ターゲット取得範囲 */
     private double targetingWidth;
-    
+
     /** ターゲッティングタスクを繰り返す間隔(tick) */
     private int targetingTicks;
-    
+
     /** 最大ターゲット数 */
     private int maxTargetNum;
-    
+
     /** ミサイルのスピード */
     private double missileSpeed;
-    
+
     /** 発射してからホーミング処理を開始させる時間(tick) */
     private int hormingStartTicks;
-    
+
     /** ホーミング処理タスクを繰り返す間隔(tick) */
     private int hormingTicks;
-    
+
     /** ホーミング処理で、ターゲットを見失う距離 */
     private int hormingRange;
-    
+
     /** ホーミング処理を実行する回数 */
     private int hormingNum;
-    
+
     /** 着弾時の爆発威力 */
     private int explosionPower;
-    
+
     /** ミサイルランチャーとして使用するアイテムの素材 */
     private Material launcherMaterial;
-    
+
     /** 無限ミサイルモード */
     private boolean infiniteMissileMode;
-    
+
     /** MOBにターゲッティングするかどうか */
     private boolean targetingToMob;
-    
+
     /** プレイヤーにターゲッティングするかどうか */
     private boolean targetingToPlayer;
 
@@ -60,7 +60,7 @@ public class StingerMissileConfig {
      * コンストラクタ
      */
     public StingerMissileConfig(FileConfiguration config) {
-        
+
         targetingRange = config.getInt("targetingRange", 40);
         targetingWidth = config.getDouble("targetingWidth", 2.5);
         targetingTicks = config.getInt("targetingTicks", 5);
@@ -74,14 +74,14 @@ public class StingerMissileConfig {
         infiniteMissileMode = config.getBoolean("infiniteMissileMode", true);
         targetingToMob = config.getBoolean("targetingToMob", true);
         targetingToPlayer = config.getBoolean("targetingToPlayer", true);
-        
+
         launcherMaterial = Material.getMaterial(config.getString("launcherMaterial", "GOLD_HOE"));
         if ( launcherMaterial == null ) {
             StingerMissile.instance.getLogger().warning(
                     "Not found material in \"launcherMaterial\" config. The launcher will be GOLD_HOE.");
             launcherMaterial = Material.GOLD_HOE;
         }
-        
+
     }
 
     /**
@@ -153,14 +153,14 @@ public class StingerMissileConfig {
     public int getExplosionPower() {
         return explosionPower;
     }
-    
+
     /**
      * @return launcherMaterial ミサイルランチャーとして使用するアイテムの素材
      */
     public Material getLauncherMaterial() {
         return launcherMaterial;
     }
-    
+
     /**
      * @return infiniteMissileMode 無限ミサイルモード
      */

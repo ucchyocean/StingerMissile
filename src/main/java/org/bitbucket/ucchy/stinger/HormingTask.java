@@ -26,7 +26,7 @@ public class HormingTask extends BukkitRunnable {
     private int range;
     private int number;
     private int maxHorming;
-    
+
     /**
      * コンストラクタ
      * @param missile ミサイルエンティティ
@@ -42,15 +42,15 @@ public class HormingTask extends BukkitRunnable {
         this.maxHorming = maxHorming;
         this.isEnd = false;
     }
-    
+
     /**
      * タスクIDを設定する
-     * @param id 
+     * @param id
      */
     protected void setId(int id) {
         this.id = id;
     }
-    
+
     /**
      * タスクが終了状態かどうか確認する
      * @return
@@ -58,26 +58,26 @@ public class HormingTask extends BukkitRunnable {
     protected boolean isEnded() {
         return isEnd;
     }
-    
+
     /**
      * タイマーで呼び出されるメソッド
      * @see java.lang.Runnable#run()
      */
     @Override
     public void run() {
-        
+
         if ( isEnd ) {
             cancelThisTask();
         }
-        
+
         number++;
-        
+
         if ( missile == null || missile.isDead() ) {
             // ミサイルが消滅しているようなのでタスクを終了する
             cancelThisTask();
             return;
         }
-        
+
         if ( target == null || target.isDead() ) {
             // 対象を見失ったので追尾をやめる
             missile.getWorld().playEffect(missile.getLocation(), Effect.POTION_BREAK, 1);
@@ -85,7 +85,7 @@ public class HormingTask extends BukkitRunnable {
             cancelThisTask();
             return;
         }
-        
+
         if ( number > maxHorming ) {
             // 最大ホーミング実行回数を超えたので、追尾をやめる
             missile.getWorld().playEffect(missile.getLocation(), Effect.POTION_BREAK, 1);
@@ -93,7 +93,7 @@ public class HormingTask extends BukkitRunnable {
             cancelThisTask();
             return;
         }
-        
+
         double distance = target.getLocation().distance(missile.getLocation());
         if ( distance > (double)range ) {
             // 距離が離れすぎたため追尾をやめる
@@ -102,7 +102,7 @@ public class HormingTask extends BukkitRunnable {
             cancelThisTask();
             return;
         }
-        
+
         // 追尾する
         Vector vector = target.getLocation().subtract(missile.getLocation()).toVector();
         double speed = StingerMissile.config.getMissileSpeed();
@@ -117,13 +117,13 @@ public class HormingTask extends BukkitRunnable {
         Bukkit.getScheduler().cancelTask(id);
         isEnd = true; // set end flag.
     }
-    
+
     /**
      * ミサイルのエンティティを削除する
-     * @param missile 
+     * @param missile
      */
     private void removeMissile(Projectile missile) {
-        
+
         // エフェクト用の花火を削除する、ミサイルを削除する
         Entity passenger = missile.getPassenger();
         if ( passenger != null ) {

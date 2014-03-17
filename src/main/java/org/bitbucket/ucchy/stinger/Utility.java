@@ -110,26 +110,26 @@ public class Utility {
             }
         }
     }
-    
+
     /**
      * 同じチームに所属していて、そのチームがFF無効かどうかを確認する
-     * @param player1 
-     * @param player2 
+     * @param player1
+     * @param player2
      * @return 同じチームでFF無効かどうか
      */
     public static boolean checkPlayersSameTeam(Player player1, Player player2) {
-        
+
         Scoreboard board = player1.getScoreboard();
         if ( board == null ) {
             return false;
         }
-        
+
         Team team1 = board.getPlayerTeam(player1);
         Team team2 = board.getPlayerTeam(player2);
         if ( team1 == null || team2 == null ) {
             return false;
         }
-        
+
         return team1.getName().equals(team2.getName()) && !team1.allowFriendlyFire();
     }
 
