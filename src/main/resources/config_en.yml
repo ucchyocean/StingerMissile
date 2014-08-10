@@ -1,0 +1,38 @@
+# ${project.name} v${project.version}
+# @author     ucchy
+# @license    LGPLv3
+# @copyright  Copyright ucchy 2014
+
+# Max targeting distance.
+targetingRange: 40
+
+# Targeting cursole width.
+targetingWidth: 2.5
+
+# Max targeting numbers.
+maxTargetNum: 5
+
+# Missile acceleration speed.
+missileAccelSpeed: 0.4
+
+# Missile maximum speed.
+missileMaxSpeed: 2.0
+
+# Explosion power.
+explosionPower: 3
+
+# Explosion damage amount.
+explosionDamage: 3.0
+
+# Material of launcher. Default is 'GOLD_HOE'
+launcherMaterial: 'GOLD_HOE'
+
+# Infinite Missile Mode.
+# If false, an ender pearl will be consumed by launching each missiles.
+infiniteMissileMode: true
+
+# If true, launcher can target to MOBs.
+targetingToMob: true
+
+# If true, launcher can target to other players.
+targetingToPlayer: true

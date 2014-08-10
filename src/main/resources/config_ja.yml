@@ -14,11 +14,18 @@ targetingWidth: 2.5
 # 同時にターゲット可能な対象数
 maxTargetNum: 5
 
-# ミサイルのスピード
-missileSpeed: 0.8
+# ミサイルの加速スピード
+missileAccelSpeed: 0.4
 
-# 弾がヒットしたときに発生する爆風の強さ。爆発の強さがそのまま威力になる。
+# ミサイルの最大スピード
+missileMaxSpeed: 2.0
+
+# 弾がヒットしたときに発生する爆風の強さ。
 explosionPower: 3
+
+# 弾がヒットしたときに対象に与える基本ダメージ量。
+# 基本ダメージ量＋爆発によるダメージ量＝被弾した時の実際のダメージ量
+explosionDamage: 3.0
 
 # ミサイルランチャーとして使用するアイテムの素材
 launcherMaterial: 'GOLD_HOE'

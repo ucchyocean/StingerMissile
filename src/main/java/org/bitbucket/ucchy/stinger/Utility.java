@@ -17,6 +17,7 @@ import java.io.OutputStreamWriter;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
@@ -173,5 +174,15 @@ public class Utility {
         } else {
             return false;
         }
+    }
+
+    /**
+     * 指定された名前のプレイヤーを返す
+     * @param name プレイヤー名
+     * @return プレイヤー、該当プレイヤーがオンラインでない場合はnullになる。
+     */
+    @SuppressWarnings("deprecation")
+    public static Player getPlayerExact(String name) {
+        return Bukkit.getPlayerExact(name);
     }
 }

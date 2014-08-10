@@ -26,8 +26,11 @@ public class StingerMissileConfig {
     /** 最大ターゲット数 */
     private int maxTargetNum;
 
-    /** ミサイルのスピード */
-    private double missileSpeed;
+    /** ミサイルの加速スピード */
+    private double missileAccelSpeed;
+
+    /** ミサイルの最大スピード */
+    private double missileMaxSpeed;
 
     /** 発射してからホーミング処理を開始させる時間(tick) */
     private int hormingStartTicks;
@@ -43,6 +46,9 @@ public class StingerMissileConfig {
 
     /** 着弾時の爆発威力 */
     private int explosionPower;
+
+    /** 着弾時のダメージ量 */
+    private double explosionDamage;
 
     /** ミサイルランチャーとして使用するアイテムの素材 */
     private Material launcherMaterial;
@@ -65,17 +71,19 @@ public class StingerMissileConfig {
         targetingWidth = config.getDouble("targetingWidth", 2.5);
         targetingTicks = config.getInt("targetingTicks", 5);
         maxTargetNum = config.getInt("maxTargetNum", 5);
-        missileSpeed = config.getDouble("missileSpeed", 1.0);
+        missileAccelSpeed = config.getDouble("missileAccelSpeed", 0.4);
+        missileMaxSpeed = config.getDouble("missileMaxSpeed", 2.0);
         hormingStartTicks = config.getInt("hormingStartTicks", 10);
         hormingTicks = config.getInt("hormingTicks", 2);
         hormingRange = config.getInt("hormingRange", 40);
         hormingNum = config.getInt("hormingNum", 45);
-        explosionPower = config.getInt("explosionPower", 5);
+        explosionPower = config.getInt("explosionPower", 3);
+        explosionDamage = config.getDouble("explosionDamage", 3.0);
         infiniteMissileMode = config.getBoolean("infiniteMissileMode", true);
         targetingToMob = config.getBoolean("targetingToMob", true);
         targetingToPlayer = config.getBoolean("targetingToPlayer", true);
 
-        launcherMaterial = Material.getMaterial(config.getString("launcherMaterial", "GOLD_HOE"));
+        launcherMaterial = Material.matchMaterial(config.getString("launcherMaterial", "GOLD_HOE"));
         if ( launcherMaterial == null ) {
             StingerMissile.instance.getLogger().warning(
                     "Not found material in \"launcherMaterial\" config. The launcher will be GOLD_HOE.");
@@ -113,10 +121,17 @@ public class StingerMissileConfig {
     }
 
     /**
-     * @return missileSpeed ミサイルのスピード
+     * @return missileAccelSpeed ミサイルの加速スピード
      */
-    public double getMissileSpeed() {
-        return missileSpeed;
+    public double getMissileAccelSpeed() {
+        return missileAccelSpeed;
+    }
+
+    /**
+     * @return missileAccelSpeed ミサイルの最大スピード
+     */
+    public double getMissileMaxSpeed() {
+        return missileMaxSpeed;
     }
 
     /**
@@ -152,6 +167,13 @@ public class StingerMissileConfig {
      */
     public int getExplosionPower() {
         return explosionPower;
+    }
+
+    /**
+     * @return explosionPower 着弾時のダメージ威力
+     */
+    public double getExplosionDamage() {
+        return explosionDamage;
     }
 
     /**

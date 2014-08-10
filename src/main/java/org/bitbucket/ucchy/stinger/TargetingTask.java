@@ -7,7 +7,6 @@ package org.bitbucket.ucchy.stinger;
 
 import java.util.ArrayList;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Effect;
 import org.bukkit.Location;
@@ -25,7 +24,6 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.BlockIterator;
 import org.bukkit.util.Vector;
 
@@ -35,7 +33,6 @@ import org.bukkit.util.Vector;
  */
 public class TargetingTask extends BukkitRunnable {
 
-    private int id;
     private boolean isEnd;
     private boolean isTargeting;
     private Player player;
@@ -51,21 +48,12 @@ public class TargetingTask extends BukkitRunnable {
     public TargetingTask(Player player) {
         this.player = player;
         this.isTargeting = true;
-        this.id = -1;
         this.targeted = new ArrayList<LivingEntity>();
         this.isEnd = false;
 
         range = StingerMissile.config.getTargetingRange();
         width = StingerMissile.config.getTargetingWidth();
         max = StingerMissile.config.getMaxTargetNum();
-    }
-
-    /**
-     * タスクIDを設定する
-     * @param id
-     */
-    protected void setId(int id) {
-        this.id = id;
     }
 
     /**
@@ -89,10 +77,6 @@ public class TargetingTask extends BukkitRunnable {
      */
     @Override
     public void run() {
-
-        if ( isEnd ) {
-            cancelThisTask();
-        }
 
         if ( isTargeting ) {
 
@@ -156,7 +140,7 @@ public class TargetingTask extends BukkitRunnable {
                 Projectile missile = (Projectile)player.getWorld().spawnEntity(
                         location, StingerMissile.MISSILE_ENTITY);
                 Vector vector = location.getDirection();
-                vector.normalize().multiply(StingerMissile.config.getMissileSpeed());
+                vector.normalize().multiply(StingerMissile.config.getMissileAccelSpeed());
                 missile.setVelocity(vector);
                 missile.setMetadata(StingerMissile.MISSILE_META_NAME,
                       new FixedMetadataValue(StingerMissile.instance, true));
@@ -177,9 +161,7 @@ public class TargetingTask extends BukkitRunnable {
                 int maxHorming = StingerMissile.config.getHormingNum();
                 HormingTask task = new HormingTask(
                         missile, target, hormingRange, maxHorming);
-                BukkitTask t = Bukkit.getScheduler().runTaskTimer(
-                        StingerMissile.instance, task, hormingStart, hormingTicks);
-                task.setId(t.getTaskId());
+                task.runTaskTimer(StingerMissile.instance, hormingStart, hormingTicks);
 
                 missiles.add(missile);
                 tasks.add(task);
@@ -224,7 +206,7 @@ public class TargetingTask extends BukkitRunnable {
             }
 
             // このタスクを終了する
-            cancelThisTask();
+            endThisTask();
         }
     }
 
@@ -328,11 +310,10 @@ public class TargetingTask extends BukkitRunnable {
     }
 
     /**
-     * タスクをキャンセルして終了状態にする
+     * このタスクを完了状態にして、繰り返しタスクを終了する
      */
-    private void cancelThisTask() {
-
-        Bukkit.getScheduler().cancelTask(id);
-        isEnd = true; // set end flag.
+    private void endThisTask() {
+        cancel();
+        isEnd = true;
     }
 }

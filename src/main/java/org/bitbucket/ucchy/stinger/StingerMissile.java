@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -40,7 +39,6 @@ import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitTask;
 
 /**
  * ロックオン方式のミサイル発射プラグイン
@@ -199,10 +197,7 @@ public class StingerMissile extends JavaPlugin implements Listener {
         if ( task == null ) {
             task = new TargetingTask(player);
             targetingTasks.put(player.getName(), task);
-            BukkitTask t =
-                    Bukkit.getScheduler().runTaskTimer(
-                            this, task, 0, config.getTargetingTicks());
-            task.setId(t.getTaskId());
+            task.runTaskTimer(this, 0, config.getTargetingTicks());
         } else {
             task.setTargeting();
         }
@@ -234,9 +229,12 @@ public class StingerMissile extends JavaPlugin implements Listener {
             if ( event.getCause() == DamageCause.BLOCK_EXPLOSION &&
                     damagee.hasMetadata(EXPLOSION_SOURCE_META_NAME) ) {
 
-                Player attacker = Bukkit.getPlayerExact(
+                Player attacker = Utility.getPlayerExact(
                         damagee.getMetadata(EXPLOSION_SOURCE_META_NAME).get(0).asString());
                 damagee.removeMetadata(EXPLOSION_SOURCE_META_NAME, this);
+
+                // 追加ダメージを増やす
+                event.setDamage(event.getDamage() + config.getExplosionDamage());
 
                 if ( attacker != null ) {
 
@@ -260,12 +258,13 @@ public class StingerMissile extends JavaPlugin implements Listener {
             // まず、着弾地点の爆発範囲にいるエンティティに、
             // メタデータで攻撃者を記録し、ダメージ0を与えて攻撃者を記録する
             double power = config.getExplosionPower();
+            double range = power * 2;
             Player shooter = null;
             if ( proj.getShooter() instanceof Player ) {
                 shooter = (Player)proj.getShooter();
             }
             if ( shooter != null ) {
-                for ( Entity entity : proj.getNearbyEntities(power, power, power) ) {
+                for ( Entity entity : proj.getNearbyEntities(range, range, range) ) {
                     if ( entity instanceof LivingEntity ) {
                         LivingEntity le = (LivingEntity)entity;
                         le.setMetadata(EXPLOSION_SOURCE_META_NAME,
@@ -337,7 +336,7 @@ public class StingerMissile extends JavaPlugin implements Listener {
                 return true;
             }
 
-            Player player = Bukkit.getPlayerExact(args[1]);
+            Player player = Utility.getPlayerExact(args[1]);
             if ( player == null ) {
                 sender.sendMessage(ChatColor.RED + "Not found the specified player.");
                 return true;
