@@ -40,6 +40,8 @@ public class TargetingTask extends BukkitRunnable {
     private int range;
     private double width;
     private int max;
+    private boolean infiniteMissileMode;
+    private Material consumeItem;
 
     /**
      * コンストラクタ
@@ -54,6 +56,8 @@ public class TargetingTask extends BukkitRunnable {
         range = StingerMissile.config.getTargetingRange();
         width = StingerMissile.config.getTargetingWidth();
         max = StingerMissile.config.getMaxTargetNum();
+        consumeItem = StingerMissile.config.getConsumeMissileMaterial();
+        infiniteMissileMode = StingerMissile.config.isInfiniteMissileMode();
     }
 
     /**
@@ -121,10 +125,9 @@ public class TargetingTask extends BukkitRunnable {
 
                 // 有限ミサイルモードで、
                 // 手持ちにミサイルが無いなら発射しない、持っているなら1つ消費する
-                boolean infiniteMissileMode = StingerMissile.config.isInfiniteMissileMode();
                 if ( !infiniteMissileMode ) {
                     if ( !hasMissile(player) ) {
-                        String materialName = StingerMissile.MISSILE_MATERIAL.name().toString();
+                        String materialName = consumeItem.name().toString();
                         player.sendMessage(ChatColor.RED
                                 + "You don't have missile(" + materialName + ") !");
                         continue;
@@ -288,7 +291,7 @@ public class TargetingTask extends BukkitRunnable {
     private boolean hasMissile(Player player) {
 
         PlayerInventory inv = player.getInventory();
-        int index = inv.first(StingerMissile.MISSILE_MATERIAL);
+        int index = inv.first(consumeItem);
         return (index != -1);
     }
 
@@ -299,7 +302,7 @@ public class TargetingTask extends BukkitRunnable {
     private void consumeMissile(Player player) {
 
         PlayerInventory inv = player.getInventory();
-        int index = inv.first(StingerMissile.MISSILE_MATERIAL);
+        int index = inv.first(consumeItem);
         ItemStack item = inv.getItem(index);
         int amount = item.getAmount() - 1;
         if ( amount <= 0 ) {

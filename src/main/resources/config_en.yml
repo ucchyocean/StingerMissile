@@ -36,3 +36,6 @@ targetingToMob: true
 
 # If true, launcher can target to other players.
 targetingToPlayer: true
+
+# Material of consumed item per launching missile. Default is 'ENDER_PEARL'
+consumeMissileMaterial: 'ENDER_PEARL'

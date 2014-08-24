@@ -62,6 +62,9 @@ public class StingerMissileConfig {
     /** プレイヤーにターゲッティングするかどうか */
     private boolean targetingToPlayer;
 
+    /** ミサイルを打ち出す時に消費する素材 */
+    private Material consumeMissileMaterial;
+
     /**
      * コンストラクタ
      */
@@ -86,10 +89,18 @@ public class StingerMissileConfig {
         launcherMaterial = Material.matchMaterial(config.getString("launcherMaterial", "GOLD_HOE"));
         if ( launcherMaterial == null ) {
             StingerMissile.instance.getLogger().warning(
-                    "Not found material in \"launcherMaterial\" config. The launcher will be GOLD_HOE.");
+                    "Not found material at \"launcherMaterial\" config. The launcher will be GOLD_HOE.");
             launcherMaterial = Material.GOLD_HOE;
         }
 
+        consumeMissileMaterial =
+                Material.matchMaterial(config.getString("consumeMissileMaterial", "ENDER_PEARL"));
+        if ( consumeMissileMaterial == null ) {
+            StingerMissile.instance.getLogger().warning(
+                    "Not found material at \"consumeMissileMaterial\" config. "
+                    + "The consumed item will be ENDER_PEARL.");
+            consumeMissileMaterial = Material.ENDER_PEARL;
+        }
     }
 
     /**
@@ -202,5 +213,12 @@ public class StingerMissileConfig {
      */
     public boolean isTargetingToPlayer() {
         return targetingToPlayer;
+    }
+
+    /**
+     * @return consumeMissileMaterial ミサイルを打ち出す時に消費する素材
+     */
+    public Material getConsumeMissileMaterial() {
+        return consumeMissileMaterial;
     }
 }

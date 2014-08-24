@@ -42,3 +42,9 @@ targetingToMob: true
 
 # プレイヤーへのターゲッティング有効無効を切り替えする
 targetingToPlayer: true
+
+# ミサイルを打ち出す時に消費する素材。
+# infiniteMissileMode が true の場合は、この設定は無視されます。
+# 例えば、BREADを指定すると、ミサイルを打ち出すときにパンを消費します。
+# （ただし、実際にミサイルとして飛ぶのはエンダーパールです。）
+consumeMissileMaterial: 'ENDER_PEARL'
