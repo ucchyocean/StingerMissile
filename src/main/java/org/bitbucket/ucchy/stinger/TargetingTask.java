@@ -258,6 +258,8 @@ public class TargetingTask extends BukkitRunnable {
         // 視線上のブロックを取得
         BlockIterator it = new BlockIterator(player, range);
 
+        double widthSqr = width * width;
+
         // 手前側から検証を行う。
         // Blockか、LivingEntity が取得できた時点でreturnして終了する。
         while ( it.hasNext() ) {
@@ -271,7 +273,7 @@ public class TargetingTask extends BukkitRunnable {
             } else {
 
                 for ( LivingEntity le : livings ) {
-                    if ( block.getLocation().distance(le.getLocation()) <= width ) {
+                    if ( block.getLocation().distanceSquared(le.getLocation()) <= widthSqr ) {
                         // LivingEntityが見つかったので、LivingEntityを返して終了する
                         return le;
                     }
