@@ -29,14 +29,11 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -51,7 +48,7 @@ public class StingerMissile extends JavaPlugin implements Listener {
             ChatColor.BLUE.toString() + ChatColor.BOLD.toString() + NAME;
 
     protected static final String MISSILE_META_NAME = "StingerMissile";
-    protected static final EntityType MISSILE_ENTITY = EntityType.ENDER_PEARL;
+    protected static final EntityType MISSILE_ENTITY = EntityType.SNOWBALL;
     protected static final Material MISSILE_MATERIAL = Material.ENDER_PEARL;
 
     private static final String EXPLOSION_SOURCE_META_NAME = "ExplosionSource";
@@ -384,45 +381,6 @@ public class StingerMissile extends JavaPlugin implements Listener {
         }
 
         return null;
-    }
-
-    /**
-     * プレイヤーがテレポートしたときに呼び出されるメソッド
-     * @param event
-     */
-    @EventHandler
-    public void onTeleport(PlayerTeleportEvent event) {
-
-        if ( event.getCause() == TeleportCause.ENDER_PEARL ) {
-
-            // テレポート無効カウントを取得する
-            Player player = event.getPlayer();
-            if ( player.hasMetadata(MISSILE_META_NAME) ) {
-                MetadataValue mvalue = player.getMetadata(MISSILE_META_NAME).get(0);
-                int count = mvalue.asInt();
-
-                if ( count > 0 ) {
-                    // カウントを1減らして、テレポートを無効化する
-                    count--;
-                    player.setMetadata(MISSILE_META_NAME, new FixedMetadataValue(this, count));
-                    event.setCancelled(true);
-                }
-            }
-        }
-    }
-
-    /**
-     * 対象プレイヤーのテレポート無効カウントを1増やす
-     * @param player
-     */
-    protected void increasePlayerIgnoreTeleportCount(Player player) {
-
-        int count = 1;
-        if ( player.hasMetadata(MISSILE_META_NAME) ) {
-            MetadataValue mvalue = player.getMetadata(MISSILE_META_NAME).get(0);
-            count += mvalue.asInt();
-        }
-        player.setMetadata(MISSILE_META_NAME, new FixedMetadataValue(this, count));
     }
 
     /**

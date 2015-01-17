@@ -13,6 +13,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Firework;
@@ -142,7 +143,14 @@ public class TargetingTask extends BukkitRunnable {
                         player.getLocation().getDirection().normalize().multiply(offset));
                 Projectile missile = (Projectile)player.getWorld().spawnEntity(
                         location, StingerMissile.MISSILE_ENTITY);
+
+                if ( StingerMissile.MISSILE_ENTITY == EntityType.ARROW ) {
+                    Arrow arrow = (Arrow)missile;
+                    arrow.setCritical(true);
+                }
+
                 Vector vector = location.getDirection();
+                vector.setY(vector.getY() + 0.5);
                 vector.normalize().multiply(StingerMissile.config.getMissileAccelSpeed());
                 missile.setVelocity(vector);
                 missile.setMetadata(StingerMissile.MISSILE_META_NAME,
@@ -168,10 +176,6 @@ public class TargetingTask extends BukkitRunnable {
 
                 missiles.add(missile);
                 tasks.add(task);
-
-                // テレポートを1回分無効にする。
-                // （ミサイルにエンダーパールを使用するための回避策）
-                StingerMissile.instance.increasePlayerIgnoreTeleportCount(player);
             }
 
             if ( missiles.size() == 0 ) {
