@@ -3,6 +3,8 @@
 # @license    LGPLv3
 # @copyright  Copyright ucchy 2014
 
+# ------------------------- 設定 -------------------------
+
 # 右クリックでターゲッティングしているときの、ターゲット取得最大距離
 # 大きくすると、遠いプレイヤーも取得される。最大でも100以下にすること。
 targetingRange: 40
@@ -43,8 +45,17 @@ targetingToMob: true
 # プレイヤーへのターゲッティング有効無効を切り替えする
 targetingToPlayer: true
 
+# トロッコやボートへのターゲッティング有効無効を切り替えする
+targetingToVehicle: true
+
+# エンダークリスタルへのターゲッティング有効無効を切り替えする
+targetingToEnderCrystal: true
+
 # ミサイルを打ち出す時に消費する素材。
 # infiniteMissileMode が true の場合は、この設定は無視されます。
 # 例えば、BREADを指定すると、ミサイルを打ち出すときにパンを消費します。
 # （ただし、実際にミサイルとして飛ぶのはエンダーパールです。）
 consumeMissileMaterial: 'ENDER_PEARL'
+
+# ------------------------- メッセージ -------------------------
+

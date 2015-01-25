@@ -53,7 +53,7 @@ public class StingerMissile extends JavaPlugin implements Listener {
 
     private static final String EXPLOSION_SOURCE_META_NAME = "ExplosionSource";
 
-    private static final String CONFIG_FILE_NAME_EN = "config_en.yml";
+    private static final String CONFIG_FILE_NAME_EN = "config.yml";
     private static final String CONFIG_FILE_NAME_JA = "config_ja.yml";
 
     private ItemStack item;
@@ -72,7 +72,7 @@ public class StingerMissile extends JavaPlugin implements Listener {
 
         instance = this;
 
-        reloadLockonConfig();
+        reloadStingerConfig();
         getServer().getPluginManager().registerEvents(this, this);
 
         // タスクマネージャを作成
@@ -102,13 +102,13 @@ public class StingerMissile extends JavaPlugin implements Listener {
     /**
      * 設定を再読み込みする
      */
-    private void reloadLockonConfig() {
+    private void reloadStingerConfig() {
 
         // 必要に応じて、config.ymlを新規作成
         File configFile = new File(getDataFolder(), "config.yml");
         if ( !configFile.exists() ) {
             String configFileOrg = CONFIG_FILE_NAME_EN;
-            if ( System.getProperty("user.language").equals("ja") ) {
+            if ( getReleaseLang().equals("ja") ) {
                 configFileOrg = CONFIG_FILE_NAME_JA;
             }
             Utility.copyFileFromJar(getFile(), configFile, configFileOrg, false);
@@ -353,7 +353,7 @@ public class StingerMissile extends JavaPlugin implements Listener {
                 return true;
             }
 
-            reloadLockonConfig();
+            reloadStingerConfig();
             sender.sendMessage(ChatColor.GOLD + "reload completed.");
             return true;
         }
@@ -452,5 +452,15 @@ public class StingerMissile extends JavaPlugin implements Listener {
                     + "You don't have permission \"stinger." + name + "\".");
         }
         return perm;
+    }
+
+    /**
+     * このプラグインのリリース先を返す
+     * @return en または ja (pom.xml の release.lang の内容が返される)
+     */
+    protected String getReleaseLang() {
+        String[] descs = getDescription().getDescription().split(" ");
+        if ( descs.length <= 0 ) return "en";
+        return descs[descs.length - 1];
     }
 }

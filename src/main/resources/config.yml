@@ -3,6 +3,8 @@
 # @license    LGPLv3
 # @copyright  Copyright ucchy 2014
 
+# ------------------------- Configuration -------------------------
+
 # Max targeting distance.
 targetingRange: 40
 
@@ -37,5 +39,14 @@ targetingToMob: true
 # If true, launcher can target to other players.
 targetingToPlayer: true
 
+# If true, launcher can target to vechicles (minecart and boat).
+targetingToVehicle: true
+
+# If true, launcher can target to ender crystal.
+targetingToEnderCrystal: true
+
 # Material of consumed item per launching missile. Default is 'ENDER_PEARL'
 consumeMissileMaterial: 'ENDER_PEARL'
+
+# ------------------------- Messages -------------------------
+

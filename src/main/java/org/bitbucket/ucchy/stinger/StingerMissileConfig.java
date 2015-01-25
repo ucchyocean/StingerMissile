@@ -62,6 +62,12 @@ public class StingerMissileConfig {
     /** プレイヤーにターゲッティングするかどうか */
     private boolean targetingToPlayer;
 
+    /** Vehicleにターゲッティングするかどうか */
+    private boolean targetingToVehicle;
+
+    /** エンダークリスタルにターゲッティングするかどうか */
+    private boolean targetingToEnderCrystal;
+
     /** ミサイルを打ち出す時に消費する素材 */
     private Material consumeMissileMaterial;
 
@@ -85,6 +91,8 @@ public class StingerMissileConfig {
         infiniteMissileMode = config.getBoolean("infiniteMissileMode", true);
         targetingToMob = config.getBoolean("targetingToMob", true);
         targetingToPlayer = config.getBoolean("targetingToPlayer", true);
+        targetingToVehicle = config.getBoolean("targetingToVehicle", true);
+        targetingToEnderCrystal = config.getBoolean("targetingToEnderCrystal", true);
 
         launcherMaterial = Material.matchMaterial(config.getString("launcherMaterial", "GOLD_HOE"));
         if ( launcherMaterial == null ) {
@@ -213,6 +221,20 @@ public class StingerMissileConfig {
      */
     public boolean isTargetingToPlayer() {
         return targetingToPlayer;
+    }
+
+    /**
+     * @return targetingToVehicle Vehicleにターゲッティングするかどうか
+     */
+    public boolean isTargetingToVehicle() {
+        return targetingToVehicle;
+    }
+
+    /**
+     * @return targetingToEnderCrystal エンダークリスタルにターゲッティングするかどうか
+     */
+    public boolean isTargetingToEnderCrystal() {
+        return targetingToEnderCrystal;
     }
 
     /**

@@ -1,40 +1,42 @@
 name: ${project.name}
-main: ${project.groupId}.${plugin.command.name}.${project.name}
 version: ${project.version}
+main: org.bitbucket.ucchy.stinger.StingerMissile
 author: ucchy
-description: ${project.description}
+description: Stinger missile plugin for ${release.lang}
 softdepend: [ColorTeaming]
+
 commands:
-  ${plugin.command.name}:
-    description: The command for ${project.name}.
-    aliases: ${plugin.id.aliase}
+  stinger:
+    description: The command for StingerMissile.
+    aliases: sm
     usage: |
            /<command> get - get new stinger missile.
            /<command> give (player) - give new stinger missile.
            /<command> reload - reload configuration file.
-    permission: ${plugin.command.name}.command
+    permission: stinger.command
     permission-message: You don't have "<permission>" permission.
+
 permissions:
-  ${plugin.command.name}.command:
-    description: ${project.name} command permission.
+  stinger.command:
+    description: StingerMissile command permission.
     default: true
-  ${plugin.command.name}.reload:
-    description: ${project.name} reload command permission.
+  stinger.reload:
+    description: StingerMissile reload command permission.
     default: op
-  ${plugin.command.name}.get:
-    description: ${project.name} get command permission.
+  stinger.get:
+    description: StingerMissile get command permission.
     default: op
-  ${plugin.command.name}.give:
-    description: ${project.name} give command permission.
+  stinger.give:
+    description: StingerMissile give command permission.
     default: op
-  ${plugin.command.name}.action:
-    description: ${project.name} action permission.
+  stinger.action:
+    description: StingerMissile action permission.
     default: true
-  ${plugin.command.name}.*:
+  stinger.*:
     children:
-      ${plugin.command.name}.command: true
-      ${plugin.command.name}.reload: true
-      ${plugin.command.name}.get: true
-      ${plugin.command.name}.give: true
-      ${plugin.command.name}.action: true
-    description: All of ${project.name} permission.
+      stinger.command: true
+      stinger.reload: true
+      stinger.get: true
+      stinger.give: true
+      stinger.action: true
+    description: All of StingerMissile permission.

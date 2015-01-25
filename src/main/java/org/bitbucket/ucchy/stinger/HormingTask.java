@@ -7,7 +7,6 @@ package org.bitbucket.ucchy.stinger;
 
 import org.bukkit.Effect;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Projectile;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
@@ -20,7 +19,7 @@ public class HormingTask extends BukkitRunnable {
 
     private boolean isEnd;
     private Projectile missile;
-    private LivingEntity target;
+    private Entity target;
     private int range;
     private int number;
     private int maxHorming;
@@ -32,7 +31,7 @@ public class HormingTask extends BukkitRunnable {
      * @param range 追尾可能な範囲設定
      * @param maxHorming ホーミング最大実行回数
      */
-    public HormingTask(Projectile missile, LivingEntity target, int range, int maxHorming) {
+    public HormingTask(Projectile missile, Entity target, int range, int maxHorming) {
         this.missile = missile;
         this.target = target;
         this.range = range;
@@ -90,7 +89,7 @@ public class HormingTask extends BukkitRunnable {
         }
 
         // 追尾する
-        Vector accel = target.getEyeLocation().subtract(missile.getLocation()).toVector();
+        Vector accel = target.getLocation().subtract(missile.getLocation()).toVector();
         double speed = StingerMissile.config.getMissileAccelSpeed();
         accel.normalize().multiply(speed);
 

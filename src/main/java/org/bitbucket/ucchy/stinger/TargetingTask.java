@@ -14,10 +14,13 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Arrow;
+import org.bukkit.entity.Boat;
+import org.bukkit.entity.EnderCrystal;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Minecart;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.inventory.ItemStack;
@@ -37,7 +40,7 @@ public class TargetingTask extends BukkitRunnable {
     private boolean isEnd;
     private boolean isTargeting;
     private Player player;
-    private ArrayList<LivingEntity> targeted;
+    private ArrayList<Entity> targeted;
     private int range;
     private double width;
     private int max;
@@ -51,7 +54,7 @@ public class TargetingTask extends BukkitRunnable {
     public TargetingTask(Player player) {
         this.player = player;
         this.isTargeting = true;
-        this.targeted = new ArrayList<LivingEntity>();
+        this.targeted = new ArrayList<Entity>();
         this.isEnd = false;
 
         range = StingerMissile.config.getTargetingRange();
@@ -86,7 +89,7 @@ public class TargetingTask extends BukkitRunnable {
         if ( isTargeting ) {
 
             if ( targeted.size() < max ) {
-                LivingEntity target = getTargetedEntity(player, range, width);
+                Entity target = getTargetedEntity(player, range, width);
                 if ( target != null && !targeted.contains(target) ) {
 
                     // ターゲット対象の名前を取得する
@@ -117,7 +120,7 @@ public class TargetingTask extends BukkitRunnable {
             ArrayList<HormingTask> tasks = new ArrayList<HormingTask>();
 
             // ターゲット対象ごとに、ミサイルと、ホーミング処理タスクを生成する
-            for ( LivingEntity target : targeted ) {
+            for ( Entity target : targeted ) {
 
                 // ターゲットした対象が既にいない場合は、ミサイルを発射しない
                 if ( target == null || target.isDead() ) {
@@ -226,7 +229,7 @@ public class TargetingTask extends BukkitRunnable {
      * @param range 取得距離
      * @param width 取得範囲
      */
-    protected LivingEntity getTargetedEntity(Player player, int range, double width) {
+    protected Entity getTargetedEntity(Player player, int range, double width) {
 
         // プレイヤーと、レンジのちょうど中間にダミーEntityを生成し、
         // 立方体範囲のエンティティをまとめて取得する。
@@ -235,27 +238,41 @@ public class TargetingTask extends BukkitRunnable {
         double halfrange = (double)range / 2.0;
         center.add(center.getDirection().normalize().multiply(halfrange));
         Entity orb = center.getWorld().spawnEntity(center, EntityType.EXPERIENCE_ORB);
-        ArrayList<LivingEntity> livings = new ArrayList<LivingEntity>();
+        ArrayList<Entity> entities = new ArrayList<Entity>();
         for ( Entity e : orb.getNearbyEntities(halfrange, halfrange, halfrange) ) {
 
-            if ( e instanceof LivingEntity && !player.equals(e) ) {
+            if ( !player.equals(e) ) {
 
-                if ( e instanceof Player && config.isTargetingToPlayer() && !player.equals(e) ) {
+                if ( config.isTargetingToPlayer() && e instanceof Player ) {
                     // 対象がプレイヤーで、プレイヤーへのターゲッティングが有効なら、
                     // ターゲット対象に加える。
-                    livings.add((LivingEntity)e);
+                    entities.add(e);
 
-                } else if ( !(e instanceof Player) && config.isTargetingToMob() ) {
+                } else if ( config.isTargetingToMob()
+                        && !(e instanceof Player) && (e instanceof LivingEntity) ) {
                     // 対象がMOBで、MOBへのターゲッティングが有効なら、
                     // ターゲット対象に加える。
-                    livings.add((LivingEntity)e);
+                    entities.add(e);
+
+                } else if ( config.isTargetingToVehicle()
+                        && (e instanceof Boat || e instanceof Minecart) ) {
+                    // 対象がMinecartかBoatで、Vehicleへのターゲッティングが有効なら、
+                    // ターゲット対象に加える。
+                    entities.add(e);
+
+                } else if ( config.isTargetingToEnderCrystal()
+                        && e instanceof EnderCrystal) {
+                    // 対象がEnderCrystalで、EnderCrystalへのターゲッティングが有効なら、
+                    // ターゲット対象に加える。
+                    entities.add(e);
+
                 }
             }
         }
         orb.remove();
 
         // LivingEntity が1体も見つからないなら、そのまま終了する。
-        if ( livings.isEmpty() ) {
+        if ( entities.isEmpty() ) {
             return null;
         }
 
@@ -265,7 +282,7 @@ public class TargetingTask extends BukkitRunnable {
         double widthSqr = width * width;
 
         // 手前側から検証を行う。
-        // Blockか、LivingEntity が取得できた時点でreturnして終了する。
+        // Blockか、Entity が取得できた時点でreturnして終了する。
         while ( it.hasNext() ) {
 
             Block block = it.next();
@@ -276,10 +293,10 @@ public class TargetingTask extends BukkitRunnable {
 
             } else {
 
-                for ( LivingEntity le : livings ) {
-                    if ( block.getLocation().distanceSquared(le.getLocation()) <= widthSqr ) {
-                        // LivingEntityが見つかったので、LivingEntityを返して終了する
-                        return le;
+                for ( Entity e : entities ) {
+                    if ( block.getLocation().distanceSquared(e.getLocation()) <= widthSqr ) {
+                        // Entityが見つかったので、Entityを返して終了する
+                        return e;
                     }
                 }
             }
