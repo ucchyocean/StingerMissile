@@ -59,3 +59,5 @@ consumeMissileMaterial: 'ENDER_PEARL'
 
 # ------------------------- メッセージ -------------------------
 
+messageTargetted: '&6targeted %name. (%num/%max)'
+messageEmptyMissile: '&cYou don''t have missile(%material) !'
