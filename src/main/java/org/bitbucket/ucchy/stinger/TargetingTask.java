@@ -7,7 +7,6 @@ package org.bitbucket.ucchy.stinger;
 
 import java.util.ArrayList;
 
-import org.bukkit.ChatColor;
 import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -101,8 +100,7 @@ public class TargetingTask extends BukkitRunnable {
                     }
 
                     // ターゲットしたことを通知して、音を鳴らす
-                    String message = String.format(
-                            ChatColor.GOLD + "targeted %s. (%d/%d)",
+                    String message = StingerMissile.config.getMessageTargetted(
                             name, targeted.size() + 1, max);
                     player.sendMessage(message);
                     targeted.add(target);
@@ -132,8 +130,8 @@ public class TargetingTask extends BukkitRunnable {
                 if ( !infiniteMissileMode ) {
                     if ( !hasMissile(player) ) {
                         String materialName = consumeItem.name().toString();
-                        player.sendMessage(ChatColor.RED
-                                + "You don't have missile(" + materialName + ") !");
+                        player.sendMessage(
+                                StingerMissile.config.getMessageEmptyMissile(materialName));
                         continue;
                     } else {
                         consumeMissile(player);

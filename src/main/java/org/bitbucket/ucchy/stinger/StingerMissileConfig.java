@@ -71,6 +71,10 @@ public class StingerMissileConfig {
     /** ミサイルを打ち出す時に消費する素材 */
     private Material consumeMissileMaterial;
 
+    private String messageTargetted;
+
+    private String messageEmptyMissile;
+
     /**
      * コンストラクタ
      */
@@ -93,6 +97,11 @@ public class StingerMissileConfig {
         targetingToPlayer = config.getBoolean("targetingToPlayer", true);
         targetingToVehicle = config.getBoolean("targetingToVehicle", true);
         targetingToEnderCrystal = config.getBoolean("targetingToEnderCrystal", true);
+
+        messageTargetted = config.getString(
+                "messageTargetted", "&6targeted %name. (%num/%max)");
+        messageEmptyMissile = config.getString(
+                "messageEmptyMissile", "&cYou don''t have missile(%material) !");
 
         launcherMaterial = Material.matchMaterial(config.getString("launcherMaterial", "GOLD_HOE"));
         if ( launcherMaterial == null ) {
@@ -242,5 +251,21 @@ public class StingerMissileConfig {
      */
     public Material getConsumeMissileMaterial() {
         return consumeMissileMaterial;
+    }
+
+    /**
+     * @return messageTargetted
+     */
+    public String getMessageTargetted(String name, int num, int max) {
+        return Utility.replaceColorCode( messageTargetted.replace("%name", name)
+                .replace("%num", num + "").replace("%max", max + "") );
+    }
+
+    /**
+     * @return messageEmptyMissile
+     */
+    public String getMessageEmptyMissile(String material) {
+        return Utility.replaceColorCode(
+                messageEmptyMissile.replace("%material", material) );
     }
 }

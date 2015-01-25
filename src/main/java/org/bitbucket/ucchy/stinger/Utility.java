@@ -18,6 +18,7 @@ import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
@@ -174,6 +175,15 @@ public class Utility {
         } else {
             return false;
         }
+    }
+
+    /**
+     * カラーコードの置き換えを行う
+     * @param source
+     * @return 置き換えられた文字列
+     */
+    public static String replaceColorCode(String source) {
+        return ChatColor.translateAlternateColorCodes('&', source);
     }
 
     /**
