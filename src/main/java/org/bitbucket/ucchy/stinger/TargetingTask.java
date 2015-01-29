@@ -40,10 +40,13 @@ public class TargetingTask extends BukkitRunnable {
     private boolean isTargeting;
     private Player player;
     private ArrayList<Entity> targeted;
+    private Entity delayCandidate;
+    private int remainDelayCycles;
     private int range;
     private double width;
     private int max;
     private boolean infiniteMissileMode;
+    private int lockonDelayCycle;
     private Material consumeItem;
 
     /**
@@ -61,6 +64,7 @@ public class TargetingTask extends BukkitRunnable {
         max = StingerMissile.config.getMaxTargetNum();
         consumeItem = StingerMissile.config.getConsumeMissileMaterial();
         infiniteMissileMode = StingerMissile.config.isInfiniteMissileMode();
+        lockonDelayCycle = StingerMissile.config.getLockonDelayCycle();
     }
 
     /**
@@ -97,6 +101,26 @@ public class TargetingTask extends BukkitRunnable {
                         name = ((Player)target).getName();
                     } else {
                         name = target.getType().toString().toLowerCase();
+                    }
+
+                    // 遅延サイクルが必要なら、遅延サイクルを実行する
+                    if ( lockonDelayCycle > 0 ) {
+                        if ( delayCandidate == null || !delayCandidate.equals(target) ) {
+                            remainDelayCycles = lockonDelayCycle - 1;
+                            delayCandidate = target;
+                            int distance =
+                                    (int)target.getLocation().distance(player.getLocation());
+                            String message =
+                                    StingerMissile.config.getMessageTargetCandidate(
+                                    name, distance);
+                            player.sendMessage(message);
+                            return;
+                        } else {
+                            if ( remainDelayCycles > 0 ) {
+                                remainDelayCycles--;
+                                return;
+                            }
+                        }
                     }
 
                     // ターゲットしたことを通知して、音を鳴らす

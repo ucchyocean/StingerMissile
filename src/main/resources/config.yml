@@ -48,7 +48,15 @@ targetingToEnderCrystal: true
 # Material of consumed item per launching missile. Default is 'ENDER_PEARL'
 consumeMissileMaterial: 'ENDER_PEARL'
 
+# You can set the delay cycles it takes a while to run the lock-on,
+#   when you hold clicking on the target.
+# 1 cycle is 5 ticks.
+# For example, if you set "lockonDelayCycle: 4",
+#   the target is locked on to one seconds after the cursor by clicking.
+lockonDelayCycle: 0
+
 # ------------------------- Messages -------------------------
 
+messageTargetCandidate: '&7target candidate: %name,  distance: %distance'
 messageTargetted: '&6targeted %name. (%num/%max)'
 messageEmptyMissile: '&cYou don''t have missile(%material) !'

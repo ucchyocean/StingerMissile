@@ -57,7 +57,15 @@ targetingToEnderCrystal: true
 # （ただし、実際にミサイルとして飛ぶのはエンダーパールです。）
 consumeMissileMaterial: 'ENDER_PEARL'
 
+# クリックしながらカーソルを合わせてロックオンするときに、
+# ロックオンを実行するまでにかかる遅延サイクルを設定します。
+# 1サイクルで5ticksです。
+# 例えば lockonDelayCycle: 4  を設定すると、クリックしてカーソルを合わせてから
+# 1秒後に対象がロックオンされます。
+lockonDelayCycle: 0
+
 # ------------------------- メッセージ -------------------------
 
+messageTargetCandidate: '&7target candidate: %name,  distance: %distance'
 messageTargetted: '&6targeted %name. (%num/%max)'
 messageEmptyMissile: '&cYou don''t have missile(%material) !'

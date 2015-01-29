@@ -71,6 +71,13 @@ public class StingerMissileConfig {
     /** ミサイルを打ち出す時に消費する素材 */
     private Material consumeMissileMaterial;
 
+    /** ロックオンまでにかかる遅延サイクル */
+    private int lockonDelayCycle;
+
+    // 以下、メッセージ設定
+
+    private String messageTargetCandidate;
+
     private String messageTargetted;
 
     private String messageEmptyMissile;
@@ -97,7 +104,11 @@ public class StingerMissileConfig {
         targetingToPlayer = config.getBoolean("targetingToPlayer", true);
         targetingToVehicle = config.getBoolean("targetingToVehicle", true);
         targetingToEnderCrystal = config.getBoolean("targetingToEnderCrystal", true);
+        lockonDelayCycle = config.getInt("lockonDelayCycle", 0);
 
+        messageTargetCandidate = config.getString(
+                "messageTargetCandidate",
+                "&7target candidate: %name,  distance: %distance");
         messageTargetted = config.getString(
                 "messageTargetted", "&6targeted %name. (%num/%max)");
         messageEmptyMissile = config.getString(
@@ -117,6 +128,10 @@ public class StingerMissileConfig {
                     "Not found material at \"consumeMissileMaterial\" config. "
                     + "The consumed item will be ENDER_PEARL.");
             consumeMissileMaterial = Material.ENDER_PEARL;
+        }
+
+        if ( lockonDelayCycle < 0 ) {
+            lockonDelayCycle = 0;
         }
     }
 
@@ -254,11 +269,29 @@ public class StingerMissileConfig {
     }
 
     /**
+     * @return lockonDelayCycle
+     */
+    public int getLockonDelayCycle() {
+        return lockonDelayCycle;
+    }
+
+    /**
+     * @return messageTargetCandidate
+     */
+    public String getMessageTargetCandidate(String name, int distance) {
+        return Utility.replaceColorCode( messageTargetCandidate
+                .replace("%name", name)
+                .replace("%distance", distance + "") );
+    }
+
+    /**
      * @return messageTargetted
      */
     public String getMessageTargetted(String name, int num, int max) {
-        return Utility.replaceColorCode( messageTargetted.replace("%name", name)
-                .replace("%num", num + "").replace("%max", max + "") );
+        return Utility.replaceColorCode( messageTargetted
+                .replace("%name", name)
+                .replace("%num", num + "")
+                .replace("%max", max + "") );
     }
 
     /**
@@ -266,6 +299,7 @@ public class StingerMissileConfig {
      */
     public String getMessageEmptyMissile(String material) {
         return Utility.replaceColorCode(
-                messageEmptyMissile.replace("%material", material) );
+                messageEmptyMissile
+                .replace("%material", material) );
     }
 }
