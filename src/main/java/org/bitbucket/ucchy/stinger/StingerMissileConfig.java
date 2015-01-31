@@ -77,13 +77,18 @@ public class StingerMissileConfig {
     /** ロックオンまでにかかる遅延サイクル */
     private int lockonDelayCycle;
 
-    // 以下、メッセージ設定
+    // メッセージ設定
 
     private String messageTargetCandidate;
-
     private String messageTargetted;
-
     private String messageEmptyMissile;
+
+    // サウンド設定
+
+    private SoundComponent soundLockonDelay;
+    private SoundComponent soundLockonTarget;
+    private SoundComponent soundNoneTarget;
+    private SoundComponent soundLaunching;
 
     /**
      * コンストラクタ
@@ -107,7 +112,11 @@ public class StingerMissileConfig {
         targetingToPlayer = config.getBoolean("targetingToPlayer", true);
         targetingToVehicle = config.getBoolean("targetingToVehicle", true);
         targetingToEnderCrystal = config.getBoolean("targetingToEnderCrystal", true);
+
         lockonDelayCycle = config.getInt("lockonDelayCycle", 0);
+        if ( lockonDelayCycle < 0 ) {
+            lockonDelayCycle = 0;
+        }
 
         messageTargetCandidate = config.getString(
                 "messageTargetCandidate",
@@ -135,9 +144,14 @@ public class StingerMissileConfig {
             consumeMissileMaterial = Material.ENDER_PEARL;
         }
 
-        if ( lockonDelayCycle < 0 ) {
-            lockonDelayCycle = 0;
-        }
+        soundLockonDelay = SoundComponent.getComponentFromString(
+                config.getString("soundLockonDelay"));
+        soundLockonTarget = SoundComponent.getComponentFromString(
+                config.getString("soundLockonTarget"));
+        soundNoneTarget = SoundComponent.getComponentFromString(
+                config.getString("soundNoneTarget"));
+        soundLaunching = SoundComponent.getComponentFromString(
+                config.getString("soundLaunching"));
     }
 
     /**
@@ -314,4 +328,34 @@ public class StingerMissileConfig {
                 messageEmptyMissile
                 .replace("%material", material) );
     }
+
+    /**
+     * @return soundLockonDelay
+     */
+    public SoundComponent getSoundLockonDelay() {
+        return soundLockonDelay;
+    }
+
+    /**
+     * @return soundLockonTarget
+     */
+    public SoundComponent getSoundLockonTarget() {
+        return soundLockonTarget;
+    }
+
+    /**
+     * @return soundNoneTarget
+     */
+    public SoundComponent getSoundNoneTarget() {
+        return soundNoneTarget;
+    }
+
+    /**
+     * @return soundLaunching
+     */
+    public SoundComponent getSoundLaunching() {
+        return soundLaunching;
+    }
+
+
 }

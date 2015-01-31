@@ -114,6 +114,7 @@ public class TargetingTask extends BukkitRunnable {
                                     StingerMissile.config.getMessageTargetCandidate(
                                     name, distance);
                             player.sendMessage(message);
+                            StingerMissile.config.getSoundLockonDelay().playSoundToPlayer(player);
                             return;
                         } else {
                             if ( remainDelayCycles > 0 ) {
@@ -128,8 +129,7 @@ public class TargetingTask extends BukkitRunnable {
                             name, targeted.size() + 1, max);
                     player.sendMessage(message);
                     targeted.add(target);
-                    player.playSound(
-                            player.getLocation(), Sound.ORB_PICKUP, 1, 1);
+                    StingerMissile.config.getSoundLockonTarget().playSoundToPlayer(player);
                 }
             }
 
@@ -207,7 +207,7 @@ public class TargetingTask extends BukkitRunnable {
                 // 発射したミサイルが無い場合
                 // プシュっという音と、煙を出す。
 
-                player.playSound(player.getLocation(), Sound.IRONGOLEM_THROW, 1.0F, 1.5F);
+                StingerMissile.config.getSoundNoneTarget().playSoundToWorld(player.getLocation());
                 player.getWorld().playEffect(player.getLocation(), Effect.SMOKE, 1);
                 player.getWorld().playEffect(player.getLocation(), Effect.SMOKE, 3);
                 player.getWorld().playEffect(player.getLocation(), Effect.SMOKE, 4);
@@ -218,9 +218,7 @@ public class TargetingTask extends BukkitRunnable {
                 // 発射したミサイルがある場合
 
                 // 発射音を鳴らす
-                player.getWorld().playSound(player.getLocation(), Sound.NOTE_BASS_DRUM, 1.0F, 1.0F);
-                player.getWorld().playSound(player.getLocation(), Sound.SILVERFISH_HIT, 0.5F, 0.0F);
-                player.getWorld().playSound(player.getLocation(), Sound.CHEST_CLOSE, 1.0F, 1.8F);
+                StingerMissile.config.getSoundLaunching().playSoundToWorld(player.getLocation());
 
                 // 発射タスクを記録する
                 StingerMissile.instance.putHormingTask(player, tasks);

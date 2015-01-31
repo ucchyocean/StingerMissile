@@ -63,3 +63,10 @@ lockonDelayCycle: 0
 messageTargetCandidate: '&7target candidate: %name,  distance: %distance'
 messageTargetted: '&6targeted %name. (%num/%max)'
 messageEmptyMissile: '&cYou don''t have missile(%material) !'
+
+# ------------------------- Sound -------------------------
+
+soundLockonDelay: 'NOTE_PLING-0.5-1'
+soundLockonTarget: 'ORB_PICKUP-1-1'
+soundNoneTarget: 'IRONGOLEM_THROW-1-1.5'
+soundLaunching: 'NOTE_BASS_DRUM-1-1,SILVERFISH_HIT-0.5-0,CHEST_CLOSE-1-1.8'
