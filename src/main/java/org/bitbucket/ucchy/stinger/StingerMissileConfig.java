@@ -53,6 +53,9 @@ public class StingerMissileConfig {
     /** ミサイルランチャーとして使用するアイテムの素材 */
     private Material launcherMaterial;
 
+    /** ミサイルランチャーのアイテム表示名 */
+    private String launcherDisplayName;
+
     /** 無限ミサイルモード */
     private boolean infiniteMissileMode;
 
@@ -120,6 +123,8 @@ public class StingerMissileConfig {
                     "Not found material at \"launcherMaterial\" config. The launcher will be GOLD_HOE.");
             launcherMaterial = Material.GOLD_HOE;
         }
+
+        launcherDisplayName = config.getString("launcherDisplayName", "&9&lStinger");
 
         consumeMissileMaterial =
                 Material.matchMaterial(config.getString("consumeMissileMaterial", "ENDER_PEARL"));
@@ -224,6 +229,13 @@ public class StingerMissileConfig {
      */
     public Material getLauncherMaterial() {
         return launcherMaterial;
+    }
+
+    /**
+     * @return launcherDisplayName ミサイルランチャーのアイテム表示名
+     */
+    public String getLauncherDisplayName() {
+        return Utility.replaceColorCode(launcherDisplayName);
     }
 
     /**

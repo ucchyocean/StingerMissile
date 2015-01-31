@@ -44,8 +44,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class StingerMissile extends JavaPlugin implements Listener {
 
     private static final String NAME = "Stinger";
-    private static final String DISPLAY_NAME =
-            ChatColor.BLUE.toString() + ChatColor.BOLD.toString() + NAME;
 
     protected static final String MISSILE_META_NAME = "StingerMissile";
     protected static final EntityType MISSILE_ENTITY = EntityType.SNOWBALL;
@@ -91,7 +89,7 @@ public class StingerMissile extends JavaPlugin implements Listener {
                 getLogger().info("ColorTeaming was loaded. "
                         + getDescription().getName() + " is in cooperation with ColorTeaming.");
                 ColorTeamingBridge bridge = new ColorTeamingBridge(colorteaming);
-                bridge.registerItem(item, NAME, DISPLAY_NAME);
+                bridge.registerItem(item, NAME, config.getLauncherDisplayName());
             } else {
                 getLogger().warning("ColorTeaming was too old. The cooperation feature will be disabled.");
                 getLogger().warning("NOTE: Please use ColorTeaming v2.2.5 or later version.");
@@ -127,7 +125,7 @@ public class StingerMissile extends JavaPlugin implements Listener {
 
         item = new ItemStack(config.getLauncherMaterial(), 1);
         ItemMeta wirerodMeta = item.getItemMeta();
-        wirerodMeta.setDisplayName(DISPLAY_NAME);
+        wirerodMeta.setDisplayName(config.getLauncherDisplayName());
         item.setItemMeta(wirerodMeta);
         return item;
     }
@@ -402,7 +400,8 @@ public class StingerMissile extends JavaPlugin implements Listener {
             return false;
         }
 
-        return DISPLAY_NAME.equals(item.getItemMeta().getDisplayName());
+        String displayName = config.getLauncherDisplayName();
+        return displayName.equals(item.getItemMeta().getDisplayName());
     }
 
     /**

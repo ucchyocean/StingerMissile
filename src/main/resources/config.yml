@@ -29,6 +29,9 @@ explosionDamage: 3.0
 # Material of launcher. Default is 'GOLD_HOE'
 launcherMaterial: 'GOLD_HOE'
 
+# Missile launcher item display name.
+launcherDisplayName: '&9&lStinger'
+
 # Infinite Missile Mode.
 # If false, an ender pearl will be consumed by launching each missiles.
 infiniteMissileMode: true

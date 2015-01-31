@@ -30,7 +30,11 @@ explosionPower: 3
 explosionDamage: 3.0
 
 # ミサイルランチャーとして使用するアイテムの素材
+# 右クリックで使用することができる道具を指定してください。
 launcherMaterial: 'GOLD_HOE'
+
+# ミサイルランチャーのアイテム表示名
+launcherDisplayName: '&9&lStinger'
 
 # 無限ミサイルモード
 # true :  ミサイルが手持ちに無くても、ランチャーのみでミサイルを無限に発射できます。
