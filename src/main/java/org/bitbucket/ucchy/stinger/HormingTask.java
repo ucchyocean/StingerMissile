@@ -95,6 +95,9 @@ public class HormingTask extends BukkitRunnable {
 
         Vector velocity = missile.getVelocity();
         velocity.add(accel);
+        Vector againstGravity =
+                new Vector(0, StingerMissile.config.getAgainstGravity(), 0);
+        velocity.add(againstGravity);
         double maxSpeed = StingerMissile.config.getMissileMaxSpeed();
         if ( velocity.length() > maxSpeed ) {
             velocity.normalize().multiply(maxSpeed);

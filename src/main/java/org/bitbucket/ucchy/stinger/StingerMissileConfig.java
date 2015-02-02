@@ -77,6 +77,9 @@ public class StingerMissileConfig {
     /** ロックオンまでにかかる遅延サイクル */
     private int lockonDelayCycle;
 
+    /** 重力の打ち消し加速度 */
+    private double againstGravity;
+
     // メッセージ設定
 
     private String messageTargetCandidate;
@@ -112,19 +115,12 @@ public class StingerMissileConfig {
         targetingToPlayer = config.getBoolean("targetingToPlayer", true);
         targetingToVehicle = config.getBoolean("targetingToVehicle", true);
         targetingToEnderCrystal = config.getBoolean("targetingToEnderCrystal", true);
+        againstGravity = config.getDouble("againstGravity", 0.15);
 
         lockonDelayCycle = config.getInt("lockonDelayCycle", 0);
         if ( lockonDelayCycle < 0 ) {
             lockonDelayCycle = 0;
         }
-
-        messageTargetCandidate = config.getString(
-                "messageTargetCandidate",
-                "&7target candidate: %name,  distance: %distance");
-        messageTargetted = config.getString(
-                "messageTargetted", "&6targeted %name. (%num/%max)");
-        messageEmptyMissile = config.getString(
-                "messageEmptyMissile", "&cYou don''t have missile(%material) !");
 
         launcherMaterial = Material.matchMaterial(config.getString("launcherMaterial", "GOLD_HOE"));
         if ( launcherMaterial == null ) {
@@ -143,6 +139,14 @@ public class StingerMissileConfig {
                     + "The consumed item will be ENDER_PEARL.");
             consumeMissileMaterial = Material.ENDER_PEARL;
         }
+
+        messageTargetCandidate = config.getString(
+                "messageTargetCandidate",
+                "&7target candidate: %name,  distance: %distance");
+        messageTargetted = config.getString(
+                "messageTargetted", "&6targeted %name. (%num/%max)");
+        messageEmptyMissile = config.getString(
+                "messageEmptyMissile", "&cYou don''t have missile(%material) !");
 
         soundLockonDelay = SoundComponent.getComponentFromString(
                 config.getString("soundLockonDelay"));
@@ -299,6 +303,13 @@ public class StingerMissileConfig {
      */
     public int getLockonDelayCycle() {
         return lockonDelayCycle;
+    }
+
+    /**
+     * @return againstGravity
+     */
+    public double getAgainstGravity() {
+        return againstGravity;
     }
 
     /**
