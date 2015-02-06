@@ -71,6 +71,14 @@ public class HormingTask extends BukkitRunnable {
             return;
         }
 
+        if ( !target.getWorld().getName().equals(missile.getWorld().getName()) ) {
+            // 対象のワールドとミサイルのワールドが異なる場合は、追尾をやめる
+            missile.getWorld().playEffect(missile.getLocation(), Effect.POTION_BREAK, 1);
+            removeMissile(missile);
+            endThisTask();
+            return;
+        }
+
         if ( number > maxHorming ) {
             // 最大ホーミング実行回数を超えたので、追尾をやめる
             missile.getWorld().playEffect(missile.getLocation(), Effect.POTION_BREAK, 1);
