@@ -23,6 +23,9 @@ public class HormingTask extends BukkitRunnable {
     private int range;
     private int number;
     private int maxHorming;
+    private double accelSpeed;
+    private double maxSpeed;
+    private double antiGravity;
 
     /**
      * コンストラクタ
@@ -30,14 +33,21 @@ public class HormingTask extends BukkitRunnable {
      * @param target ホーミング先
      * @param range 追尾可能な範囲設定
      * @param maxHorming ホーミング最大実行回数
+     * @param accelSpeed 加速度
+     * @param maxSpeed 最大速度
+     * @param antiGravity 反重力量
      */
-    public HormingTask(Projectile missile, Entity target, int range, int maxHorming) {
+    public HormingTask(Projectile missile, Entity target, int range, int maxHorming,
+            double accelSpeed, double maxSpeed, double antiGravity) {
         this.missile = missile;
         this.target = target;
         this.range = range;
         this.number = 0;
         this.maxHorming = maxHorming;
         this.isEnd = false;
+        this.accelSpeed = accelSpeed;
+        this.maxSpeed = maxSpeed;
+        this.antiGravity = antiGravity;
     }
 
     /**
@@ -98,15 +108,11 @@ public class HormingTask extends BukkitRunnable {
 
         // 追尾する
         Vector accel = target.getLocation().subtract(missile.getLocation()).toVector();
-        double speed = StingerMissile.config.getMissileAccelSpeed();
-        accel.normalize().multiply(speed);
+        accel.normalize().multiply(accelSpeed);
 
         Vector velocity = missile.getVelocity();
         velocity.add(accel);
-        Vector againstGravity =
-                new Vector(0, StingerMissile.config.getAgainstGravity(), 0);
-        velocity.add(againstGravity);
-        double maxSpeed = StingerMissile.config.getMissileMaxSpeed();
+        velocity.add(new Vector(0, antiGravity, 0));
         if ( velocity.length() > maxSpeed ) {
             velocity.normalize().multiply(maxSpeed);
         }

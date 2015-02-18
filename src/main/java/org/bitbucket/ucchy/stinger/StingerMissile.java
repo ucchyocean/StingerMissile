@@ -6,11 +6,13 @@
 package org.bitbucket.ucchy.stinger;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -48,14 +50,13 @@ public class StingerMissile extends JavaPlugin implements Listener {
     protected static final Material MISSILE_MATERIAL = Material.ENDER_PEARL;
 
     private static final String EXPLOSION_SOURCE_META_NAME = "ExplosionSource";
+    private static final String EXPLOSION_DAMAGE_META_NAME = "ExplosionDamage";
 
     private static final String CONFIG_FILE_NAME_EN = "config.yml";
     private static final String CONFIG_FILE_NAME_JA = "config_ja.yml";
 
-    private ItemStack item;
-
-    protected static StingerMissile instance;
-    protected static StingerMissileConfig config;
+    private StingerMissileConfig config;
+    private HashMap<String, StingerMissileConfig> customConfigs;
 
     private HashMap<String, TargetingTask> targetingTasks;
     private HashMap<String, ArrayList<HormingTask>> hormingTasks;
@@ -66,24 +67,27 @@ public class StingerMissile extends JavaPlugin implements Listener {
      */
     public void onEnable() {
 
-        instance = this;
+        // 初期化
+        customConfigs = new HashMap<String, StingerMissileConfig>();
 
-        reloadStingerConfig();
+        // コンフィグの読み込み
+        reloadStingerConfigs();
+
+        // イベントリスナーの登録
         getServer().getPluginManager().registerEvents(this, this);
 
         // タスクマネージャを作成
         targetingTasks = new HashMap<String, TargetingTask>();
         hormingTasks = new HashMap<String, ArrayList<HormingTask>>();
 
-        // ミサイルランチャーを作成、レシピを設定
-        item = makeLauncher();
-        getServer().addRecipe(makeLauncherRecipe(item));
+        // ミサイルランチャーのレシピを設定
+        getServer().addRecipe(makeLauncherRecipe(makeLauncher(config)));
     }
 
     /**
      * 設定を再読み込みする
      */
-    private void reloadStingerConfig() {
+    private void reloadStingerConfigs() {
 
         // 必要に応じて、config.ymlを新規作成
         File configFile = new File(getDataFolder(), "config.yml");
@@ -95,21 +99,35 @@ public class StingerMissile extends JavaPlugin implements Listener {
             Utility.copyFileFromJar(getFile(), configFile, configFileOrg, false);
         }
 
-        // config.yml の再読み込み
-        reloadConfig();
-        config = new StingerMissileConfig(getConfig());
+        // コンフィグファイルの読み込み
+        reloadConfig(); // もう要らないけど、念のためやっとく。
+
+        // デフォルトコンフィグ
+        config = new StingerMissileConfig(configFile);
+
+        // カスタムコンフィグ
+        File[] customFiles = getDataFolder().listFiles(new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                return name.endsWith(".yml");
+            }
+        });
+        for ( File customFile : customFiles ) {
+            String name = customFile.getName().replace(".yml", "");
+            StingerMissileConfig customConfig = new StingerMissileConfig(customFile);
+            customConfigs.put(name, customConfig);
+        }
     }
 
     /**
      * ランチャーを作成して返す
      * @return ランチャー
      */
-    private ItemStack makeLauncher() {
+    private ItemStack makeLauncher(StingerMissileConfig config) {
 
-        item = new ItemStack(config.getLauncherMaterial(), 1);
-        ItemMeta wirerodMeta = item.getItemMeta();
-        wirerodMeta.setDisplayName(config.getLauncherDisplayName());
-        item.setItemMeta(wirerodMeta);
+        ItemStack item = new ItemStack(config.getLauncherMaterial(), 1);
+        ItemMeta meta = item.getItemMeta();
+        meta.setDisplayName(config.getLauncherDisplayName());
+        item.setItemMeta(meta);
         return item;
     }
 
@@ -135,7 +153,8 @@ public class StingerMissile extends JavaPlugin implements Listener {
         ItemStack item = event.getItem();
 
         // ロックオン銃でなければ、無視する
-        if ( !isLockonGun(item) ) {
+        StingerMissileConfig conf = getStingerMissileConfig(item);
+        if ( conf == null ) {
             return;
         }
 
@@ -173,9 +192,9 @@ public class StingerMissile extends JavaPlugin implements Listener {
             }
         }
         if ( task == null ) {
-            task = new TargetingTask(player);
+            task = new TargetingTask(player, conf);
             targetingTasks.put(player.getName(), task);
-            task.runTaskTimer(this, 0, config.getTargetingTicks());
+            task.runTaskTimer(this, 0, conf.getTargetingTicks());
         } else {
             task.setTargeting();
         }
@@ -212,7 +231,8 @@ public class StingerMissile extends JavaPlugin implements Listener {
                 damagee.removeMetadata(EXPLOSION_SOURCE_META_NAME, this);
 
                 // 追加ダメージを増やす
-                event.setDamage(event.getDamage() + config.getExplosionDamage());
+                double damage = damagee.getMetadata(EXPLOSION_DAMAGE_META_NAME).get(0).asDouble();
+                event.setDamage(event.getDamage() + damage);
 
                 if ( attacker != null ) {
 
@@ -233,9 +253,12 @@ public class StingerMissile extends JavaPlugin implements Listener {
         if ( proj != null && proj.getType() == MISSILE_ENTITY &&
                 proj.hasMetadata(MISSILE_META_NAME) ) {
 
+            StingerMissileConfig conf = getStingerMissileConfig(proj);
+            if ( conf == null ) return;
+
             // まず、着弾地点の爆発範囲にいるエンティティに、
             // メタデータで攻撃者を記録し、ダメージ0を与えて攻撃者を記録する
-            double power = config.getExplosionPower();
+            double power = conf.getExplosionPower();
             double range = power * 2;
             Player shooter = null;
             if ( proj.getShooter() instanceof Player ) {
@@ -247,6 +270,8 @@ public class StingerMissile extends JavaPlugin implements Listener {
                         LivingEntity le = (LivingEntity)entity;
                         le.setMetadata(EXPLOSION_SOURCE_META_NAME,
                                 new FixedMetadataValue(this, shooter.getName()));
+                        le.setMetadata(EXPLOSION_DAMAGE_META_NAME,
+                                new FixedMetadataValue(this, conf.getExplosionDamage()));
                         le.damage(0, shooter);
                         le.setNoDamageTicks(0);
                     }
@@ -295,8 +320,18 @@ public class StingerMissile extends JavaPlugin implements Listener {
 
             Player player = (Player)sender;
 
+            String configName = "config";
+            if ( args.length >= 2 ) {
+                configName = args[1];
+            }
+            if ( !customConfigs.containsKey(configName) ) {
+                sender.sendMessage(ChatColor.RED + "Could not load configuration \"" + configName + "\".");
+                return true;
+            }
+            StingerMissileConfig conf = customConfigs.get(configName);
+
             ItemStack temp = player.getItemInHand();
-            player.setItemInHand(item.clone());
+            player.setItemInHand(makeLauncher(conf));
             if ( temp != null ) {
                 player.getInventory().addItem(temp);
             }
@@ -320,8 +355,18 @@ public class StingerMissile extends JavaPlugin implements Listener {
                 return true;
             }
 
+            String configName = "config";
+            if ( args.length >= 3 ) {
+                configName = args[2];
+            }
+            if ( !customConfigs.containsKey(configName) ) {
+                sender.sendMessage(ChatColor.RED + "Could not load configuration \"" + configName + "\".");
+                return true;
+            }
+            StingerMissileConfig conf = customConfigs.get(configName);
+
             ItemStack temp = player.getItemInHand();
-            player.setItemInHand(item.clone());
+            player.setItemInHand(makeLauncher(conf));
             if ( temp != null ) {
                 player.getInventory().addItem(temp);
             }
@@ -334,7 +379,7 @@ public class StingerMissile extends JavaPlugin implements Listener {
                 return true;
             }
 
-            reloadStingerConfig();
+            reloadStingerConfigs();
             sender.sendMessage(ChatColor.GOLD + "reload completed.");
             return true;
         }
@@ -365,26 +410,54 @@ public class StingerMissile extends JavaPlugin implements Listener {
     }
 
     /**
-     * アイテムが、ロックオン銃であるかどうかを確認する
+     * アイテムから、コンフィグデータを取得する
      * @param item
-     * @return
+     * @return コンフィグデータ
      */
-    private boolean isLockonGun(ItemStack item) {
+    private StingerMissileConfig getStingerMissileConfig(ItemStack item) {
 
         if ( item == null ) {
-            return false;
+            return null;
         }
 
         if ( !item.hasItemMeta() ) {
-            return false;
+            return null;
         }
 
         if ( !item.getItemMeta().hasDisplayName() ) {
-            return false;
+            return null;
         }
 
-        String displayName = config.getLauncherDisplayName();
-        return displayName.equals(item.getItemMeta().getDisplayName());
+        if ( config.getLauncherMaterial() == item.getType()
+                && config.getLauncherDisplayName().equals(
+                    item.getItemMeta().getDisplayName()) ) {
+            return config;
+        }
+
+        for ( StingerMissileConfig conf : customConfigs.values() ) {
+            if ( conf.getLauncherMaterial() == item.getType()
+                    && conf.getLauncherDisplayName().equals(
+                item.getItemMeta().getDisplayName()) ) {
+                return conf;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * ミサイルから、コンフィグデータを取得する
+     * @param proj
+     * @return コンフィグデータ
+     */
+    private StingerMissileConfig getStingerMissileConfig(Projectile proj) {
+        String displayName = proj.getMetadata(MISSILE_META_NAME).get(0).asString();
+        for ( StingerMissileConfig conf : customConfigs.values() ) {
+            if ( conf.getLauncherDisplayName().equals(displayName) ) {
+                return conf;
+            }
+        }
+        return null;
     }
 
     /**
@@ -444,5 +517,13 @@ public class StingerMissile extends JavaPlugin implements Listener {
         Locale locale = Locale.getDefault();
         if ( locale == null ) return "en";
         return locale.getLanguage();
+    }
+
+    /**
+     * このプラグインのインスタンスを返す
+     * @return プラグインのインスタンス
+     */
+    public static StingerMissile getInstance() {
+        return (StingerMissile)Bukkit.getPluginManager().getPlugin("StingerMissile");
     }
 }

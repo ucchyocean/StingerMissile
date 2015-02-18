@@ -5,8 +5,11 @@
  */
 package org.bitbucket.ucchy.stinger;
 
+import java.io.File;
+import java.util.logging.Logger;
+
 import org.bukkit.Material;
-import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 
 /**
  * コンフィグクラス
@@ -96,7 +99,9 @@ public class StingerMissileConfig {
     /**
      * コンストラクタ
      */
-    public StingerMissileConfig(FileConfiguration config) {
+    public StingerMissileConfig(File file) {
+
+        YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
 
         targetingRange = config.getInt("targetingRange", 40);
         targetingWidth = config.getDouble("targetingWidth", 2.5);
@@ -124,7 +129,8 @@ public class StingerMissileConfig {
 
         launcherMaterial = Material.matchMaterial(config.getString("launcherMaterial", "GOLD_HOE"));
         if ( launcherMaterial == null ) {
-            StingerMissile.instance.getLogger().warning(
+            Logger logger = StingerMissile.getInstance().getLogger();
+            logger.warning(
                     "Not found material at \"launcherMaterial\" config. The launcher will be GOLD_HOE.");
             launcherMaterial = Material.GOLD_HOE;
         }
@@ -134,7 +140,8 @@ public class StingerMissileConfig {
         consumeMissileMaterial =
                 Material.matchMaterial(config.getString("consumeMissileMaterial", "ENDER_PEARL"));
         if ( consumeMissileMaterial == null ) {
-            StingerMissile.instance.getLogger().warning(
+            Logger logger = StingerMissile.getInstance().getLogger();
+            logger.warning(
                     "Not found material at \"consumeMissileMaterial\" config. "
                     + "The consumed item will be ENDER_PEARL.");
             consumeMissileMaterial = Material.ENDER_PEARL;

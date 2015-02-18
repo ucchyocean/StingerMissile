@@ -42,29 +42,49 @@ public class TargetingTask extends BukkitRunnable {
     private ArrayList<Entity> targeted;
     private Entity delayCandidate;
     private int remainDelayCycles;
+
     private int range;
     private double width;
     private int max;
+    private Material consumeItem;
     private boolean infiniteMissileMode;
     private int lockonDelayCycle;
-    private Material consumeItem;
+    private double missileAccelSpeed;
+    private double missileMaxSpeed;
+    private double missileAgainstGravity;
+
+    private int hormingRange;
+    private int hormingStart;
+    private int hormingTicks;
+    private int maxHorming;
+
+    private StingerMissileConfig config;
 
     /**
      * コンストラクタ
      * @param player
      */
-    public TargetingTask(Player player) {
+    public TargetingTask(Player player, StingerMissileConfig config) {
         this.player = player;
         this.isTargeting = true;
         this.targeted = new ArrayList<Entity>();
         this.isEnd = false;
+        this.config = config;
 
-        range = StingerMissile.config.getTargetingRange();
-        width = StingerMissile.config.getTargetingWidth();
-        max = StingerMissile.config.getMaxTargetNum();
-        consumeItem = StingerMissile.config.getConsumeMissileMaterial();
-        infiniteMissileMode = StingerMissile.config.isInfiniteMissileMode();
-        lockonDelayCycle = StingerMissile.config.getLockonDelayCycle();
+        range = config.getTargetingRange();
+        width = config.getTargetingWidth();
+        max = config.getMaxTargetNum();
+        consumeItem = config.getConsumeMissileMaterial();
+        infiniteMissileMode = config.isInfiniteMissileMode();
+        lockonDelayCycle = config.getLockonDelayCycle();
+        missileAccelSpeed = config.getMissileAccelSpeed();
+        missileMaxSpeed = config.getMissileMaxSpeed();
+        missileAgainstGravity = config.getAgainstGravity();
+
+        hormingRange = config.getHormingRange();
+        hormingStart = config.getHormingStartTicks();
+        hormingTicks = config.getHormingTicks();
+        maxHorming = config.getHormingNum();
     }
 
     /**
@@ -111,10 +131,10 @@ public class TargetingTask extends BukkitRunnable {
                             int distance =
                                     (int)target.getLocation().distance(player.getLocation());
                             String message =
-                                    StingerMissile.config.getMessageTargetCandidate(
+                                    config.getMessageTargetCandidate(
                                     name, distance);
                             player.sendMessage(message);
-                            StingerMissile.config.getSoundLockonDelay().playSoundToPlayer(player);
+                            config.getSoundLockonDelay().playSoundToPlayer(player);
                             return;
                         } else {
                             if ( remainDelayCycles > 0 ) {
@@ -125,11 +145,11 @@ public class TargetingTask extends BukkitRunnable {
                     }
 
                     // ターゲットしたことを通知して、音を鳴らす
-                    String message = StingerMissile.config.getMessageTargetted(
+                    String message = config.getMessageTargetted(
                             name, targeted.size() + 1, max);
                     player.sendMessage(message);
                     targeted.add(target);
-                    StingerMissile.config.getSoundLockonTarget().playSoundToPlayer(player);
+                    config.getSoundLockonTarget().playSoundToPlayer(player);
                 }
             }
 
@@ -154,8 +174,7 @@ public class TargetingTask extends BukkitRunnable {
                 if ( !infiniteMissileMode ) {
                     if ( !hasMissile(player) ) {
                         String materialName = consumeItem.name().toString();
-                        player.sendMessage(
-                                StingerMissile.config.getMessageEmptyMissile(materialName));
+                        player.sendMessage(config.getMessageEmptyMissile(materialName));
                         continue;
                     } else {
                         consumeMissile(player);
@@ -176,10 +195,11 @@ public class TargetingTask extends BukkitRunnable {
 
                 Vector vector = location.getDirection();
                 vector.setY(vector.getY() + 0.5);
-                vector.normalize().multiply(StingerMissile.config.getMissileAccelSpeed());
+                vector.normalize().multiply(missileAccelSpeed);
                 missile.setVelocity(vector);
                 missile.setMetadata(StingerMissile.MISSILE_META_NAME,
-                      new FixedMetadataValue(StingerMissile.instance, true));
+                      new FixedMetadataValue(StingerMissile.getInstance(),
+                              config.getLauncherDisplayName()));
                 missile.setShooter(player);
 
                 // ミサイルのエフェクト生成
@@ -191,13 +211,9 @@ public class TargetingTask extends BukkitRunnable {
                 missile.setPassenger(fw);
 
                 // ホーミング処理タスク生成
-                int hormingRange = StingerMissile.config.getHormingRange();
-                int hormingStart = StingerMissile.config.getHormingStartTicks();
-                int hormingTicks = StingerMissile.config.getHormingTicks();
-                int maxHorming = StingerMissile.config.getHormingNum();
-                HormingTask task = new HormingTask(
-                        missile, target, hormingRange, maxHorming);
-                task.runTaskTimer(StingerMissile.instance, hormingStart, hormingTicks);
+                HormingTask task = new HormingTask(missile, target, hormingRange, maxHorming,
+                        missileAccelSpeed, missileMaxSpeed, missileAgainstGravity);
+                task.runTaskTimer(StingerMissile.getInstance(), hormingStart, hormingTicks);
 
                 missiles.add(missile);
                 tasks.add(task);
@@ -207,7 +223,7 @@ public class TargetingTask extends BukkitRunnable {
                 // 発射したミサイルが無い場合
                 // プシュっという音と、煙を出す。
 
-                StingerMissile.config.getSoundNoneTarget().playSoundToWorld(player.getLocation());
+                config.getSoundNoneTarget().playSoundToWorld(player.getLocation());
                 player.getWorld().playEffect(player.getLocation(), Effect.SMOKE, 1);
                 player.getWorld().playEffect(player.getLocation(), Effect.SMOKE, 3);
                 player.getWorld().playEffect(player.getLocation(), Effect.SMOKE, 4);
@@ -218,10 +234,10 @@ public class TargetingTask extends BukkitRunnable {
                 // 発射したミサイルがある場合
 
                 // 発射音を鳴らす
-                StingerMissile.config.getSoundLaunching().playSoundToWorld(player.getLocation());
+                config.getSoundLaunching().playSoundToWorld(player.getLocation());
 
                 // 発射タスクを記録する
-                StingerMissile.instance.putHormingTask(player, tasks);
+                StingerMissile.getInstance().putHormingTask(player, tasks);
 
                 // 発射したミサイルの数だけ、ランチャーの消耗度を追加する
                 short durability = player.getItemInHand().getDurability();
@@ -253,7 +269,6 @@ public class TargetingTask extends BukkitRunnable {
 
         // プレイヤーと、レンジのちょうど中間にダミーEntityを生成し、
         // 立方体範囲のエンティティをまとめて取得する。
-        StingerMissileConfig config = StingerMissile.config;
         Location center = player.getLocation().clone();
         double halfrange = (double)range / 2.0;
         center.add(center.getDirection().normalize().multiply(halfrange));
