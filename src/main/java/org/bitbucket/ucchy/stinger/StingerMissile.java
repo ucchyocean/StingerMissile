@@ -9,6 +9,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -34,7 +35,6 @@ import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
@@ -42,8 +42,6 @@ import org.bukkit.plugin.java.JavaPlugin;
  * @author ucchy
  */
 public class StingerMissile extends JavaPlugin implements Listener {
-
-    private static final String NAME = "Stinger";
 
     protected static final String MISSILE_META_NAME = "StingerMissile";
     protected static final EntityType MISSILE_ENTITY = EntityType.SNOWBALL;
@@ -80,21 +78,6 @@ public class StingerMissile extends JavaPlugin implements Listener {
         // ミサイルランチャーを作成、レシピを設定
         item = makeLauncher();
         getServer().addRecipe(makeLauncherRecipe(item));
-
-        // ColorTeaming のロード
-        if ( getServer().getPluginManager().isPluginEnabled("ColorTeaming") ) {
-            Plugin colorteaming = getServer().getPluginManager().getPlugin("ColorTeaming");
-            String ctversion = colorteaming.getDescription().getVersion();
-            if ( Utility.isUpperVersion(ctversion, "2.2.5") ) {
-                getLogger().info("ColorTeaming was loaded. "
-                        + getDescription().getName() + " is in cooperation with ColorTeaming.");
-                ColorTeamingBridge bridge = new ColorTeamingBridge(colorteaming);
-                bridge.registerItem(item, NAME, config.getLauncherDisplayName());
-            } else {
-                getLogger().warning("ColorTeaming was too old. The cooperation feature will be disabled.");
-                getLogger().warning("NOTE: Please use ColorTeaming v2.2.5 or later version.");
-            }
-        }
     }
 
     /**
@@ -106,7 +89,7 @@ public class StingerMissile extends JavaPlugin implements Listener {
         File configFile = new File(getDataFolder(), "config.yml");
         if ( !configFile.exists() ) {
             String configFileOrg = CONFIG_FILE_NAME_EN;
-            if ( getReleaseLang().equals("ja") ) {
+            if ( getDefaultLocaleLanguage().equals("ja") ) {
                 configFileOrg = CONFIG_FILE_NAME_JA;
             }
             Utility.copyFileFromJar(getFile(), configFile, configFileOrg, false);
@@ -454,12 +437,12 @@ public class StingerMissile extends JavaPlugin implements Listener {
     }
 
     /**
-     * このプラグインのリリース先を返す
-     * @return en または ja (pom.xml の release.lang の内容が返される)
+     * 動作環境の言語設定を取得する。日本語環境なら ja、英語環境なら en が返される。
+     * @return 動作環境の言語
      */
-    protected String getReleaseLang() {
-        String[] descs = getDescription().getDescription().split(" ");
-        if ( descs.length <= 0 ) return "en";
-        return descs[descs.length - 1];
+    public static String getDefaultLocaleLanguage() {
+        Locale locale = Locale.getDefault();
+        if ( locale == null ) return "en";
+        return locale.getLanguage();
     }
 }

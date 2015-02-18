@@ -2,8 +2,7 @@ name: ${project.name}
 version: ${project.version}
 main: org.bitbucket.ucchy.stinger.StingerMissile
 author: ucchy
-description: Stinger missile plugin for ${release.lang}
-softdepend: [ColorTeaming]
+description: Stinger missile plugin
 
 commands:
   stinger:

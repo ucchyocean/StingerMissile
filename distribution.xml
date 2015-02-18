@@ -13,6 +13,7 @@
   <files>
     <file>
       <source>target/StingerMissile.jar</source>
+      <destName>plugins/StingerMissile.jar</destName>
     </file>
   </files>
 
