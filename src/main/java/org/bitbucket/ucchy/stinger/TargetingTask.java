@@ -150,6 +150,14 @@ public class TargetingTask extends BukkitRunnable {
                     player.sendMessage(message);
                     targeted.add(target);
                     config.getSoundLockonTarget().playSoundToPlayer(player);
+
+                    // ターゲットされたのがプレイヤーなら、相手に警告音を鳴らす
+                    if ( target instanceof Player ) {
+                        Player targettedPlayer = (Player)target;
+                        config.getSoundWarning().playSoundToPlayer(targettedPlayer);
+                        SubtitleDisplayComponent.display(targettedPlayer,
+                                config.getMessageWarning(), 0, 15, 10);
+                    }
                 }
             }
 
@@ -217,6 +225,14 @@ public class TargetingTask extends BukkitRunnable {
 
                 missiles.add(missile);
                 tasks.add(task);
+
+                // ターゲットされたのがプレイヤーなら、相手に警告音を鳴らす
+                if ( target instanceof Player ) {
+                    Player targettedPlayer = (Player)target;
+                    config.getSoundWarningMissileInbound().playSoundToPlayer(targettedPlayer);
+                    SubtitleDisplayComponent.display(targettedPlayer,
+                            config.getMessageWarningMissileInbound(), 0, 15, 10);
+                }
             }
 
             if ( missiles.size() == 0 ) {

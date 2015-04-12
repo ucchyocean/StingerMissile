@@ -8,6 +8,7 @@ package org.bitbucket.ucchy.stinger;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 
 /**
  * 効果音コンポーネントのパーツ
@@ -18,15 +19,21 @@ public class SoundComponentParts {
     private Sound sound;
     private float volume;
     private float pitch;
+    private int delay;
 
     private SoundComponentParts(Sound sound) {
-        this(sound, 1, 1);
+        this(sound, 1, 1, 0);
     }
 
     private SoundComponentParts(Sound sound, float volume, float pitch) {
+        this(sound, volume, pitch, 0);
+    }
+
+    private SoundComponentParts(Sound sound, float volume, float pitch, int delay) {
         this.sound = sound;
         this.volume = volume;
         this.pitch = pitch;
+        this.delay = delay;
     }
 
     /**
@@ -50,16 +57,39 @@ public class SoundComponentParts {
         return pitch;
     }
 
-    public void playSoundToPlayer(Player player) {
+    /**
+     * @return delay
+     */
+    public int getDelay() {
+        return delay;
+    }
+
+    public void playSoundToPlayer(final Player player) {
         playSoundToPlayer(player, player.getLocation());
     }
 
-    public void playSoundToPlayer(Player player, Location location) {
-        player.playSound(location, sound, volume, pitch);
+    public void playSoundToPlayer(final Player player, final Location location) {
+        if ( delay == 0 ) {
+            player.playSound(location, sound, volume, pitch);
+        } else {
+            new BukkitRunnable() {
+                public void run() {
+                    player.playSound(location, sound, volume, pitch);
+                }
+            }.runTaskLater(StingerMissile.getInstance(), delay);
+        }
     }
 
-    public void playSoundToWorld(Location location) {
-        location.getWorld().playSound(location, sound, volume, pitch);
+    public void playSoundToWorld(final Location location) {
+        if ( delay == 0 ) {
+            location.getWorld().playSound(location, sound, volume, pitch);
+        } else {
+            new BukkitRunnable() {
+                public void run() {
+                    location.getWorld().playSound(location, sound, volume, pitch);
+                }
+            }.runTaskLater(StingerMissile.getInstance(), delay);
+        }
     }
 
     public static SoundComponentParts getPartsFromString(String source) {
@@ -69,9 +99,11 @@ public class SoundComponentParts {
         if ( sound == null ) return null;
         float volume = 1;
         float pitch = 1;
+        int delay = 0;
         if ( t.length >= 2 ) volume = tryToParseDouble(t[1]);
         if ( t.length >= 3 ) pitch = tryToParseDouble(t[2]);
-        return new SoundComponentParts(sound, volume, pitch);
+        if ( t.length >= 4 ) delay = tryToParseInt(t[3]);
+        return new SoundComponentParts(sound, volume, pitch, delay);
     }
 
     private static Sound getSoundFromString(String source) {
@@ -93,6 +125,18 @@ public class SoundComponentParts {
             return f;
         } catch (NumberFormatException e) {
             return 1;
+        }
+    }
+
+    private static int tryToParseInt(String source) {
+        if ( source == null ) return 0;
+        try {
+            int i = Integer.parseInt(source);
+            if ( i <= 0 ) return 0;
+            if ( i >= 20 ) return 20;
+            return i;
+        } catch (NumberFormatException e) {
+            return 0;
         }
     }
 }

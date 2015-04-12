@@ -70,9 +70,13 @@ lockonDelayCycle: 0
 
 # ------------------------- メッセージ -------------------------
 
-messageTargetCandidate: '&7target candidate: %name,  distance: %distance'
-messageTargetted: '&6targeted %name. (%num/%max)'
-messageEmptyMissile: '&cYou don''t have missile(%material) !'
+messageTargetCandidate: '&7ターゲット候補: %name,  距離: %distance'
+messageTargetted: '&6ターゲット %name. (%num/%max)'
+messageEmptyMissile: '&cミサイル(%material)が無い！'
+
+# 下記のメッセージは、Bukkit 1.8 以降でのみ表示されます。
+messageWarning: '&c&n<<WARNING>>'
+messageWarningMissileInbound: '&c&n<<WARNING ミサイル接近中>>'
 
 # ------------------------- サウンド -------------------------
 
@@ -80,3 +84,5 @@ soundLockonDelay: 'NOTE_PLING-0.5-1'
 soundLockonTarget: 'ORB_PICKUP-1-1'
 soundNoneTarget: 'IRONGOLEM_THROW-1-1.5'
 soundLaunching: 'NOTE_BASS_DRUM-1-1,SILVERFISH_HIT-0.5-0,CHEST_CLOSE-1-1.8'
+soundWarning: 'NOTE_PLING-1-0.5,ZOMBIE_UNFECT-0.7-2'
+soundWarningMissileInbound: 'NOTE_PLING-1-0.5,ZOMBIE_UNFECT-0.7-2'

@@ -88,6 +88,8 @@ public class StingerMissileConfig {
     private String messageTargetCandidate;
     private String messageTargetted;
     private String messageEmptyMissile;
+    private String messageWarning;
+    private String messageWarningMissileInbound;
 
     // サウンド設定
 
@@ -95,6 +97,8 @@ public class StingerMissileConfig {
     private SoundComponent soundLockonTarget;
     private SoundComponent soundNoneTarget;
     private SoundComponent soundLaunching;
+    private SoundComponent soundWarning;
+    private SoundComponent soundWarningMissileInbound;
 
     /**
      * コンストラクタ
@@ -154,6 +158,9 @@ public class StingerMissileConfig {
                 "messageTargetted", "&6targeted %name. (%num/%max)");
         messageEmptyMissile = config.getString(
                 "messageEmptyMissile", "&cYou don''t have missile(%material) !");
+        messageWarning = config.getString("messageWarning", "&c&n<<WARNING>>");
+        messageWarningMissileInbound = config.getString(
+                "messageWarningMissileInbound", "&c&n<<WARNING MISSILE INBOUND>>");
 
         soundLockonDelay = SoundComponent.getComponentFromString(
                 config.getString("soundLockonDelay"));
@@ -163,6 +170,10 @@ public class StingerMissileConfig {
                 config.getString("soundNoneTarget"));
         soundLaunching = SoundComponent.getComponentFromString(
                 config.getString("soundLaunching"));
+        soundWarning = SoundComponent.getComponentFromString(
+                config.getString("soundWarning"));
+        soundWarningMissileInbound = SoundComponent.getComponentFromString(
+                config.getString("soundWarningMissileInbound"));
     }
 
     /**
@@ -348,6 +359,20 @@ public class StingerMissileConfig {
     }
 
     /**
+     * @return messageWarning
+     */
+    public String getMessageWarning() {
+        return messageWarning;
+    }
+
+    /**
+     * @return messageWarningMissileInbound
+     */
+    public String getMessageWarningMissileInbound() {
+        return messageWarningMissileInbound;
+    }
+
+    /**
      * @return soundLockonDelay
      */
     public SoundComponent getSoundLockonDelay() {
@@ -373,6 +398,20 @@ public class StingerMissileConfig {
      */
     public SoundComponent getSoundLaunching() {
         return soundLaunching;
+    }
+
+    /**
+     * @return soundWarning
+     */
+    public SoundComponent getSoundWarning() {
+        return soundWarning;
+    }
+
+    /**
+     * @return soundWarningMissileInbound
+     */
+    public SoundComponent getSoundWarningMissileInbound() {
+        return soundWarningMissileInbound;
     }
 
 
