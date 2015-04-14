@@ -283,7 +283,7 @@ public class StingerMissile extends JavaPlugin implements Listener {
             World w = proj.getWorld();
             w.createExplosion(
                     l.getX(), l.getY(), l.getZ(),
-                    (float)power, false, false);
+                    (float)power, conf.isSetFire(), conf.isBreakBlocks());
             proj.removeMetadata(MISSILE_META_NAME, this);
 
             // エフェクト用の花火を削除する、ミサイルを削除する

@@ -68,6 +68,12 @@ consumeMissileMaterial: 'ENDER_PEARL'
 # 1秒後に対象がロックオンされます。
 lockonDelayCycle: 0
 
+# ミサイルが着弾した時に、爆発範囲のブロックに着火するかどうかを設定します。
+setFire: false
+
+# ミサイルが着弾した時に、爆発範囲のブロックを破壊するかどうかを設定します。
+breakBlocks: false
+
 # ------------------------- メッセージ -------------------------
 
 messageTargetCandidate: '&7ターゲット候補: %name,  距離: %distance'

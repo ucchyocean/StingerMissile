@@ -83,6 +83,12 @@ public class StingerMissileConfig {
     /** 重力の打ち消し加速度 */
     private double againstGravity;
 
+    /** ミサイルが着弾した時に、周囲を発火するかどうか */
+    private boolean setFire;
+
+    /** ミサイルが着弾した時に、周囲のブロックを破壊するかどうか */
+    private boolean breakBlocks;
+
     // メッセージ設定
 
     private String messageTargetCandidate;
@@ -125,6 +131,8 @@ public class StingerMissileConfig {
         targetingToVehicle = config.getBoolean("targetingToVehicle", true);
         targetingToEnderCrystal = config.getBoolean("targetingToEnderCrystal", true);
         againstGravity = config.getDouble("againstGravity", 0.15);
+        setFire = config.getBoolean("setFire", false);
+        breakBlocks = config.getBoolean("breakBlocks", false);
 
         lockonDelayCycle = config.getInt("lockonDelayCycle", 0);
         if ( lockonDelayCycle < 0 ) {
@@ -328,6 +336,20 @@ public class StingerMissileConfig {
      */
     public double getAgainstGravity() {
         return againstGravity;
+    }
+
+    /**
+     * @return setFire
+     */
+    public boolean isSetFire() {
+        return setFire;
+    }
+
+    /**
+     * @return breakBlocks
+     */
+    public boolean isBreakBlocks() {
+        return breakBlocks;
     }
 
     /**

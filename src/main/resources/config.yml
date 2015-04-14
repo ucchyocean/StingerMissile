@@ -58,6 +58,12 @@ consumeMissileMaterial: 'ENDER_PEARL'
 #   the target is locked on to one seconds after the cursor by clicking.
 lockonDelayCycle: 0
 
+# When the missile landed, whether to ignite the block of the explosion range.
+setFire: false
+
+# When the missile landed, whether to destroy the block of the explosion range.
+breakBlocks: false
+
 # ------------------------- Messages -------------------------
 
 messageTargetCandidate: '&7target candidate: %name,  distance: %distance'
