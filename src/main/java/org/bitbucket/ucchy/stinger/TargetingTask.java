@@ -152,8 +152,13 @@ public class TargetingTask extends BukkitRunnable {
                     config.getSoundLockonTarget().playSoundToPlayer(player);
 
                     // ターゲットされたのがプレイヤーなら、相手に警告音を鳴らす
+                    Player targettedPlayer = null;
                     if ( target instanceof Player ) {
-                        Player targettedPlayer = (Player)target;
+                        targettedPlayer = (Player)target;
+                    } else if ( !target.isEmpty() && (target.getPassenger() instanceof Player) ) {
+                        targettedPlayer = (Player)target.getPassenger();
+                    }
+                    if ( targettedPlayer != null ) {
                         config.getSoundWarning().playSoundToPlayer(targettedPlayer);
                         SubtitleDisplayComponent.display(targettedPlayer,
                                 config.getMessageWarning(), 0, 15, 10);
@@ -227,8 +232,13 @@ public class TargetingTask extends BukkitRunnable {
                 tasks.add(task);
 
                 // ターゲットされたのがプレイヤーなら、相手に警告音を鳴らす
+                Player targettedPlayer = null;
                 if ( target instanceof Player ) {
-                    Player targettedPlayer = (Player)target;
+                    targettedPlayer = (Player)target;
+                } else if ( !target.isEmpty() && (target.getPassenger() instanceof Player) ) {
+                    targettedPlayer = (Player)target.getPassenger();
+                }
+                if ( targettedPlayer != null ) {
                     config.getSoundWarningMissileInbound().playSoundToPlayer(targettedPlayer);
                     SubtitleDisplayComponent.display(targettedPlayer,
                             config.getMessageWarningMissileInbound(), 0, 15, 10);
