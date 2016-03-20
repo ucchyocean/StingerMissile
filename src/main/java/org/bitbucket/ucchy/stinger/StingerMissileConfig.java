@@ -130,7 +130,7 @@ public class StingerMissileConfig {
         targetingToPlayer = config.getBoolean("targetingToPlayer", true);
         targetingToVehicle = config.getBoolean("targetingToVehicle", true);
         targetingToEnderCrystal = config.getBoolean("targetingToEnderCrystal", true);
-        againstGravity = config.getDouble("againstGravity", 0.15);
+        againstGravity = config.getDouble("againstGravity", 0.1);
         setFire = config.getBoolean("setFire", false);
         breakBlocks = config.getBoolean("breakBlocks", false);
 

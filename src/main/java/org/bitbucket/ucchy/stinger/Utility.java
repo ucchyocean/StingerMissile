@@ -20,6 +20,7 @@ import java.util.zip.ZipEntry;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
@@ -65,7 +66,13 @@ public class Utility {
 
             } else {
                 reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
-                writer = new BufferedWriter(new OutputStreamWriter(fos));
+
+                // CB190以降は、書き出すファイルエンコードにUTF-8を強制する。
+                if ( isCB19orLater() ) {
+                    writer = new BufferedWriter(new OutputStreamWriter(fos, "UTF-8"));
+                } else {
+                    writer = new BufferedWriter(new OutputStreamWriter(fos));
+                }
 
                 String line;
                 while ((line = reader.readLine()) != null) {
@@ -119,6 +126,7 @@ public class Utility {
      * @param player2
      * @return 同じチームでFF無効かどうか
      */
+    @SuppressWarnings("deprecation")
     public static boolean checkPlayersSameTeam(Player player1, Player player2) {
 
         Scoreboard board = player1.getScoreboard();
@@ -126,8 +134,17 @@ public class Utility {
             return false;
         }
 
-        Team team1 = board.getPlayerTeam(player1);
-        Team team2 = board.getPlayerTeam(player2);
+        Team team1 = null;
+        Team team2 = null;
+        if ( isCB186orLater() ) {
+            team1 = board.getEntryTeam(player1.getName());
+            team2 = board.getEntryTeam(player2.getName());
+        } else {
+            team1 = board.getPlayerTeam(player1);
+            team2 = board.getPlayerTeam(player2);
+
+        }
+
         if ( team1 == null || team2 == null ) {
             return false;
         }
@@ -136,14 +153,57 @@ public class Utility {
     }
 
 
+    private static Boolean isCB18orLaterCache;
+    private static Boolean isCB186orLaterCache;
+    private static Boolean isCB19orLaterCache;
+
     /**
-     * 指定されたバージョンが、基準より新しいバージョンかどうかを確認する<br>
-     * 完全一致した場合もtrueになることに注意。
+     * 現在動作中のCraftBukkitが、v1.8 以上かどうかを確認する
+     * @return v1.8以上ならtrue、そうでないならfalse
+     */
+    public static boolean isCB18orLater() {
+        if ( isCB18orLaterCache == null ) {
+            isCB18orLaterCache = isUpperVersion(Bukkit.getBukkitVersion(), "1.8");
+        }
+        return isCB18orLaterCache;
+    }
+
+    /**
+     * 現在動作中のCraftBukkitが、v1.8.6 以上かどうかを確認する
+     * @return v1.8.6以上ならtrue、そうでないならfalse
+     */
+    public static boolean isCB186orLater() {
+        if ( isCB186orLaterCache == null ) {
+            isCB186orLaterCache = isUpperVersion(Bukkit.getBukkitVersion(), "1.8.6");
+        }
+        return isCB186orLaterCache;
+    }
+
+    /**
+     * 現在動作中のCraftBukkitが、v1.9 以上かどうかを確認する
+     * @return v1.9以上ならtrue、そうでないならfalse
+     */
+    public static boolean isCB19orLater() {
+        if ( isCB19orLaterCache == null ) {
+            isCB19orLaterCache = isUpperVersion(Bukkit.getBukkitVersion(), "1.9");
+        }
+        return isCB19orLaterCache;
+    }
+
+    /**
+     * 指定されたバージョンが、基準より新しいバージョンかどうかを確認する
      * @param version 確認するバージョン
      * @param border 基準のバージョン
-     * @return 基準より確認対象の方が新しいバージョンかどうか
+     * @return 基準より確認対象の方が新しいバージョンかどうか<br/>
+     * ただし、無効なバージョン番号（数値でないなど）が指定された場合はfalseに、
+     * 2つのバージョンが完全一致した場合はtrueになる。
      */
-    public static boolean isUpperVersion(String version, String border) {
+    private static boolean isUpperVersion(String version, String border) {
+
+        int hyphen = version.indexOf("-");
+        if ( hyphen > 0 ) {
+            version = version.substring(0, hyphen);
+        }
 
         String[] versionArray = version.split("\\.");
         int[] versionNumbers = new int[versionArray.length];
@@ -197,41 +257,30 @@ public class Utility {
     }
 
     /**
-     * 現在動作中のCraftBukkitが、v1.8 以上かどうかを確認する
-     * @return v1.8 以上ならtrue、そうでないならfalse
+     * プレイヤーが手（メインハンド）に持っているアイテムを取得します。
+     * @param player プレイヤー
+     * @return 手に持っているアイテム
      */
-    public static boolean isCB18orLater() {
-
-        int[] borderNumbers = {1, 8};
-
-        String version = Bukkit.getBukkitVersion();
-        int hyphen = version.indexOf("-");
-        if ( hyphen > 0 ) {
-            version = version.substring(0, hyphen);
-        }
-
-        String[] versionArray = version.split("\\.");
-        int[] versionNumbers = new int[versionArray.length];
-        for ( int i=0; i<versionArray.length; i++ ) {
-            if ( !versionArray[i].matches("[0-9]+") ) {
-                return false;
-            }
-            versionNumbers[i] = Integer.parseInt(versionArray[i]);
-        }
-
-        int index = 0;
-        while ( (versionNumbers.length > index) && (borderNumbers.length > index) ) {
-            if ( versionNumbers[index] > borderNumbers[index] ) {
-                return true;
-            } else if ( versionNumbers[index] < borderNumbers[index] ) {
-                return false;
-            }
-            index++;
-        }
-        if ( borderNumbers.length == index ) {
-            return true;
+    @SuppressWarnings("deprecation")
+    public static ItemStack getItemInHand(Player player) {
+        if ( Utility.isCB19orLater() ) {
+            return player.getInventory().getItemInMainHand();
         } else {
-            return false;
+            return player.getItemInHand();
+        }
+    }
+
+    /**
+     * 指定したプレイヤーの手に持っているアイテムを設定します。
+     * @param player プレイヤー
+     * @param item アイテム
+     */
+    @SuppressWarnings("deprecation")
+    public static void setItemInHand(Player player, ItemStack item) {
+        if ( Utility.isCB19orLater() ) {
+            player.getInventory().setItemInMainHand(item);
+        } else {
+            player.setItemInHand(item);
         }
     }
 }

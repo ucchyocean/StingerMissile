@@ -330,8 +330,8 @@ public class StingerMissile extends JavaPlugin implements Listener {
             }
             StingerMissileConfig conf = customConfigs.get(configName);
 
-            ItemStack temp = player.getItemInHand();
-            player.setItemInHand(makeLauncher(conf));
+            ItemStack temp = Utility.getItemInHand(player);
+            Utility.setItemInHand(player, makeLauncher(conf));
             if ( temp != null ) {
                 player.getInventory().addItem(temp);
             }
@@ -365,8 +365,8 @@ public class StingerMissile extends JavaPlugin implements Listener {
             }
             StingerMissileConfig conf = customConfigs.get(configName);
 
-            ItemStack temp = player.getItemInHand();
-            player.setItemInHand(makeLauncher(conf));
+            ItemStack temp = Utility.getItemInHand(player);
+            Utility.setItemInHand(player, makeLauncher(conf));
             if ( temp != null ) {
                 player.getInventory().addItem(temp);
             }

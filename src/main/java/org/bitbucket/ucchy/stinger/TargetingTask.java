@@ -6,11 +6,11 @@
 package org.bitbucket.ucchy.stinger;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Boat;
@@ -160,8 +160,8 @@ public class TargetingTask extends BukkitRunnable {
                     }
                     if ( targettedPlayer != null ) {
                         config.getSoundWarning().playSoundToPlayer(targettedPlayer);
-                        SubtitleDisplayComponent.display(targettedPlayer,
-                                config.getMessageWarning(), 0, 15, 10);
+                        TitleDisplayComponent.display(targettedPlayer,
+                                "\n" + config.getMessageWarning(), 0, 15, 10);
                     }
                 }
             }
@@ -240,8 +240,8 @@ public class TargetingTask extends BukkitRunnable {
                 }
                 if ( targettedPlayer != null ) {
                     config.getSoundWarningMissileInbound().playSoundToPlayer(targettedPlayer);
-                    SubtitleDisplayComponent.display(targettedPlayer,
-                            config.getMessageWarningMissileInbound(), 0, 15, 10);
+                    TitleDisplayComponent.display(targettedPlayer,
+                            "\n" + config.getMessageWarningMissileInbound(), 0, 15, 10);
                 }
             }
 
@@ -266,14 +266,14 @@ public class TargetingTask extends BukkitRunnable {
                 StingerMissile.getInstance().putHormingTask(player, tasks);
 
                 // 発射したミサイルの数だけ、ランチャーの消耗度を追加する
-                short durability = player.getItemInHand().getDurability();
+                short durability = Utility.getItemInHand(player).getDurability();
                 durability += (short)missiles.size();
-                if ( durability >= player.getItemInHand().getType().getMaxDurability() ) {
+                if ( durability >= Utility.getItemInHand(player).getType().getMaxDurability() ) {
                     // 消耗度が耐久度を超えたので、ランチャーを壊す。
-                    player.getWorld().playSound(player.getLocation(), Sound.ITEM_BREAK, 1, 1);
-                    player.setItemInHand(null);
+                    player.getWorld().playSound(player.getLocation(), SoundEnum.ITEM_BREAK.getBukkit(), 1, 1);
+                    Utility.setItemInHand(player, new ItemStack(Material.AIR));
                 } else {
-                    player.getItemInHand().setDurability(durability);
+                    Utility.getItemInHand(player).setDurability(durability);
                 }
             }
 
@@ -293,14 +293,12 @@ public class TargetingTask extends BukkitRunnable {
      */
     protected Entity getTargetedEntity(Player player, int range, double width) {
 
-        // プレイヤーと、レンジのちょうど中間にダミーEntityを生成し、
-        // 立方体範囲のエンティティをまとめて取得する。
+        // ターゲット先周辺のエンティティを取得する
         Location center = player.getLocation().clone();
         double halfrange = (double)range / 2.0;
         center.add(center.getDirection().normalize().multiply(halfrange));
-        Entity orb = center.getWorld().spawnEntity(center, EntityType.EXPERIENCE_ORB);
         ArrayList<Entity> entities = new ArrayList<Entity>();
-        for ( Entity e : orb.getNearbyEntities(halfrange, halfrange, halfrange) ) {
+        for ( Entity e : getNearbyEntities(center, halfrange) ) {
 
             if ( !player.equals(e) ) {
 
@@ -330,7 +328,6 @@ public class TargetingTask extends BukkitRunnable {
                 }
             }
         }
-        orb.remove();
 
         // LivingEntity が1体も見つからないなら、そのまま終了する。
         if ( entities.isEmpty() ) {
@@ -394,6 +391,24 @@ public class TargetingTask extends BukkitRunnable {
         } else {
             item.setAmount(amount);
         }
+    }
+
+    /**
+     * 指定した地点の周囲にいるエンティティを取得する
+     * @param center 取得する中心点
+     * @param distance 探索する距離
+     * @return 取得したエンティティ
+     */
+    private static List<Entity> getNearbyEntities(Location center, double distance) {
+
+        List<Entity> entities = new ArrayList<Entity>();
+        double squared = distance * distance;
+        for ( Entity e : center.getWorld().getEntities() ) {
+            if ( center.distanceSquared(e.getLocation()) <= squared ) {
+                entities.add(e);
+            }
+        }
+        return entities;
     }
 
     /**
